@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+</head>
+<body>
+    <!-- header -->
+    <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+	    <div class="bg-white p-8 rounded-md w-full max-w-4xl mx-auto mt-12">
+			<input type="hidden" id="memberMikey" th:value="${session.member_mikey}" />
+			<input type="hidden" name="board_key" th:value="${board.board_key}" />
+	        <div class="mb-4">
+	            <table class="w-full text-left text-gray-500 whitespace-no-wrap">
+				<tbody class="whitespace-no-wrap">
+	                <tr class="border-t border-b border-gray-300">
+	                    <th class="py-4 px-6 font-medium font-semibold bg-gray-50">제목</th>
+	                    <td class="py-4 px-6 font-medium  whitespace-nowrap" th:attr="data-makey=${board.board_title}" th:text="${board.board_title}"></td>
+	                </tr>
+	                <tr class="border-b border-gray-300">
+	                    <th class="py-4 px-6 font-medium bg-gray-50">주제</th>
+	                    <td class="py-4 px-6 font-medium" th:attr="data-mikey=${board.board_mikey}"
+	                        th:text="${board.board_mikey == 10 ? '회원정보' :
+	                                 board.board_mikey == 20 ? '상품구매' :
+	                                 board.board_mikey == 30 ? '사이트이용' :
+	                                 board.board_mikey == 40 ? '기타' : '알 수 없음'}"></td>
+	                    <th class="py-4 px-6 font-medium bg-gray-50">작성자</th>
+	                    <td class="py-4 px-6 font-medium" th:text="${board.board_writer}"></td>
+	                    <th class="py-4 px-6 bg-gray-50">작성일자</th>
+	                    <td class="py-4 px-6" th:text="${board.board_regdate}" data-format="date"></td>
+	                </tr>
+	                <tr class="border-b border-gray-300">
+	                    <th class="py-4 px-6 bg-gray-50">내용</th>
+	                    <td class="py-4 px-6 whitespace-pre-line" th:utext="${#strings.replace(board.board_content, '\n', '<br/>')}" colspan="5"></td>
+	                </tr>
+	            </tbody>
+	            </table>
+	        </div>
+	        
+	        <!-- 관리자 답변 섹션 -->
+			<div class="mt-10">
+			    <h2 class="font-medium font-semibold mb-6">운영자 답변</h2>
+			    <div class="space-y-4 mt-6 font-medium">
+			        <th:block th:each="inquiry : ${inquiry}">
+			            <div class="inquiry-response border-t border-gray-200 pt-4">
+			                <span class="text-gray-600 text-sm" th:text="${inquiry.inquiry_regdate}" data-format="date">날짜</span>
+			                <div class="inquiry-content text-gray-600 text-sm" th:utext="${#strings.replace(inquiry.inquiry_content, '\n', '<br/>')}">관리자 답변 내용</div>
+			                <!-- 수정 및 삭제 버튼 -->
+			                <div class="text-right" data-inquiry-key="${inquiry.inquiry_key}">
+			                    <button type="button" class="edit-button bg-blue-500 text-white rounded px-2 py-1">수정하기</button>
+			                    <button type="button" class="delete-button bg-red-500 text-white rounded px-2 py-1 ml-2">삭제하기</button>
+			                </div>
+			            </div>
+			        </th:block>
+			    </div>
+			</div>
+
+			<!-- 답글 입력 폼 -->
+			<div id="answerForm" class="space-y-4 font-medium max-w-3xl mx-auto" style="display: none;">
+			    <form id="postForm" th:action="@{/inquiry/add}" method="post">
+					<input type="hidden" id="board_key" name="board_key" th:value="${board.board_key}">
+					<input type="hidden" name="board_iscomment" th:value="${board.board_iscomment}" th:attr="data-iscomment=${board.board_iscomment}" />
+			        <textarea name="inquiry_content" class="w-full border border-gray-300 p-2 mt-6" rows="3" placeholder="답변을 입력하세요..."></textarea>
+			        <div class="flex justify-end mt-2">
+			            <button type="submit" class="submit-button px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">등록</button>
+			        </div>
+			    </form>
+			</div>
+			
+
+	    </div>
+
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const editButtons = document.querySelectorAll('.edit-button');
+    const answerForm = document.getElementById('answerForm');
+    const deleteButtons = document.querySelectorAll('.delete-button');
+    const memberMikey = document.getElementById("memberMikey").value;
+    const boardKey = document.getElementById('board_key').value; 
+    const isComment = document.querySelector('[data-iscomment]').value; 
+
+
+    // 답변 입력 창 및 수정/삭제 버튼 표시 함수
+    function showEditDeleteButtons(show) {
+        editButtons.forEach(button => {
+            button.style.display = show ? 'inline-block' : 'none';
+        });
+        deleteButtons.forEach(button => {
+            button.style.display = show ? 'inline-block' : 'none';
+        });
+    }
+
+    // 답변 입력 창 및 수정, 삭제버튼 표시 조건 
+    if (memberMikey === '40') {
+        if (isComment === '0') {
+            answerForm.style.display = 'block';
+        } else {
+            answerForm.style.display = 'none';
+        }
+        showEditDeleteButtons(isComment === '1');
+    } else {
+        showEditDeleteButtons(false);
+        answerForm.style.display = 'none';
+    }
+
+    // 답글 수정 로직
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            let currentContent = this.closest('.inquiry-response').querySelector('.inquiry-content').innerText;
+
+            // 새로운 div 생성
+            let editDiv = document.createElement('div');
+            editDiv.className = 'edit-container';
+
+            // 기존 내용을 가진 입력창 생성
+            let editForm = document.createElement('textarea');
+            editForm.value = currentContent;
+            editForm.rows = 3;
+            editForm.className = 'w-full border border-gray-300 p-2';
+
+            // 저장 버튼 생성
+            let saveButton = document.createElement('button');
+            saveButton.innerText = '저장';
+            saveButton.className = 'bg-blue-500 text-white rounded px-4 py-2 mt-2';
+
+            // 새로운 div에 입력창과 저장 버튼 추가
+            editDiv.appendChild(editForm);
+            editDiv.appendChild(saveButton);
+
+            // 기존 버튼을 새로운 div로 교체 
+			this.closest('.text-right').appendChild(editDiv);
+			
+			// 기존 버튼 숨기기
+            this.style.display = 'none';
+
+            // 저장 버튼 클릭 이벤트
+            saveButton.addEventListener('click', function() {
+                fetch(`/updateInquiry/${boardKey}?board_key=${boardKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: `inquiry_content=${encodeURIComponent(editForm.value)}&board_key=${boardKey}`
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to save');
+                    location.reload(); // 페이지를 리로드하여 변경된 내용을 표시
+                })
+                .catch(error => alert('Failed to update: ' + error));
+            });
+        });
+    });
+
+    // 답글 삭제 로직
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm("이 답글을 정말 삭제하시겠습니까?")) {
+                fetch(`/deleteInquiry/${boardKey}?board_key=${boardKey}`, { method: 'DELETE' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to delete');
+                    alert("댓글이 성공적으로 삭제되었습니다.");
+	                window.location.href = `/qnaAnswer?board_key=${boardKey}`; 
+                })
+                .catch(error => alert('Failed to delete: ' + error));
+            }
+        });
+    });
+    
+    // 날짜 형식 변경
+    document.querySelectorAll('[data-format="date"]').forEach(element => {
+        const originalText = element.textContent.trim();
+        const parts = originalText.split(' ');
+        const year = parts[5];
+        const month = {
+            Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+            Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+        }[parts[1]];
+        const day = parts[2].padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        element.textContent = formattedDate;
+    });
+});
+</script>

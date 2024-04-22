@@ -1,0 +1,192 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+	<th:block th:replace="~{fragments/configure::configure}"></th:block>
+</head>
+<body>
+	<!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+   
+   <div class="bg-blue-100 p-6 max-w-5xl mx-auto rounded-lg" th:each="hw : ${homework}">
+        <div class="flex justify-between items-center mb-4">
+            <div class="text-lg font-semibold">숙제정보</div>
+    		<div class="flex">
+        		<div>
+            		<button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="updateHomework()">숙제 수정</button>
+        		</div>
+        		<div class="ml-2">
+            		<button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="deleteHomework()">숙제 삭제</button>
+        		</div>
+    		</div>
+        </div>
+        <div>
+        	<input type="hidden" id="studyKey" class="w-full border-2 p-2 rounded" th:value="${hw.study_key}">
+            <input type="hidden" id="homeWorkKey" class="w-full border-2 p-2 rounded" th:value="${hw.homework_key}">
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1" for="name">숙제 명</label>
+            <input type="text" id="homeWorkName" class="w-full border-2 p-2 rounded" th:value="${hw.homework_name}">
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1" for="name">숙제 내용</label>
+            <input type="text" id="homeWorkContent" class="w-full border-2 p-2 rounded" th:value="${hw.homework_content}">
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1" for="name">학습 레벨</label>
+            <input type="number" id="level" class="w-full border-2 p-2 rounded" th:value="${hw.homework_level}">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1" for="period">제출기한</label>
+        </div>
+        <div class="flex">
+            <div class="flex-1">
+                <select id="period" class="w-full border-2 p-2 rounded">
+                    <!-- 현재 년도부터 10년 후까지의 옵션 -->
+            		<option th:each="year : ${years}" th:value="${year}" th:text="${year} + '년'" th:selected="${year == getYear}"></option>
+                </select>
+            </div>
+            <div class="flex-1 ml-4">
+                <select id="month" class="w-full border-2 p-2 rounded">
+                    <!-- 1월부터 12월까지의 옵션 -->
+            		<option th:each="month : ${months}" th:value="${month}" th:text="${month} + '월'" th:selected="${month == getMonth}"></option>
+                </select>
+            </div>
+            <div class="flex-1 ml-4">
+                <select id="day" class="w-full border-2 p-2 rounded">
+                    <!-- 선택한 년도와 월에 따른 일수 계산하여 옵션 제공 -->
+            		<option th:text="${getDay}" th:value="${getDay}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <button class="bg-blue-500 text-white px-4 py-2" onclick="check()">확인</button>
+        </div>
+    </div>
+   
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+   
+<script type="text/javascript">
+   function updateDays() {
+       var year = document.getElementById("period").value;
+       var month = document.getElementById("month").value;
+       var days = new Date(year, month, 0).getDate(); // 선택한 월의 마지막 날짜 구하기
+
+       // 기존 옵션 제거
+       var select = document.getElementById("day");
+       // select.innerHTML = '';
+
+       // 일 수 옵션 추가
+       for (var i = 1; i <= days; i++) {
+           var option = document.createElement('option');
+           option.value = i;
+           option.text = i;
+           select.appendChild(option);
+       }
+   }
+
+   // 페이지 로드시 실행
+   window.onload = function() {
+       updateDays(); // 페이지 로드시 일 수 업데이트
+       
+    	// 월이 변경될 때마다 일 수 업데이트
+       document.getElementById("month").addEventListener("change", updateDays);
+   };
+   
+   function updateHomework() {
+	   // 학습그룹키
+	   var studyKey = document.getElementById('studyKey').value;
+       // 숙제키
+       var homeWorkKey = document.getElementById("homeWorkKey").value;	   
+       // 숙제명
+       var homeWorkName = document.getElementById("homeWorkName").value;
+       // 숙제 내용
+       var homeWorkContent = document.getElementById("homeWorkContent").value;
+       // 학습 레벨
+       var level = document.getElementById("level").value;
+       // 제출기한 - 년도, 월, 일
+       var year = document.getElementById("period").value;
+       var month = document.getElementById("month").value;
+       var day = document.getElementById("day").value;	  
+       
+       // 숙제 정보를 객체로 생성
+       var homeworkData = {
+    	   homework_key: homeWorkKey,
+           homework_name: homeWorkName,
+           homework_content: homeWorkContent,
+           homework_level: level,
+           homework_date: year + '-' + month + '-' + day,
+           study_key: studyKey
+       };
+		console.log(homeworkData);
+       // 숙제 정보를 JSON 형태로 변환하여 전달
+       var jsonData = JSON.stringify(homeworkData); 
+       
+       var xhr = new XMLHttpRequest();
+       xhr.open('POST', '/updateHomework', true);
+       xhr.setRequestHeader('Content-Type', 'application/json');
+       xhr.onload = function() {
+    	 if(xhr.status === 200) {
+    		 if(xhr.responseText == 'success') {
+    			 alert('숙제를 수정하였습니다!');
+        		 window.location.href = '/insertHomework';
+    		 } else if(xhr.responseText == 'send'){
+    			 alert('전송한 숙제는 수정이 불가능합니다.');
+    		 } else {
+    			 alert('스터디 레벨보다 높습니다');
+    		 }
+    		 
+    	 }   
+       };
+       xhr.onerror = function() {
+    	   console.log('에이젝스 에러~~~');
+       };
+       xhr.send(jsonData);
+   }
+   
+   function deleteHomework() {
+		// 숙제키
+       	var homeWorkKey = document.getElementById("homeWorkKey").value;
+   		
+		var formData = new FormData();
+		formData.append('homework_key', homeWorkKey);
+		
+		if(confirm("정말로 삭제하시겠습니까?")) {
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/deleteHomework', true);
+			xhr.onload = function() {
+				if(xhr.status === 200) {
+					if(xhr.responseText == 'success') {
+						alert('숙제를 성공적으로 삭제하였습니다.');
+						window.location.href = '/insertHomework';
+					} else {
+						alert('이미 전송된 숙제라 삭제를 할 수 없습니다.');
+					}
+				}
+			};
+			xhr.onerror = function() {
+				console.log('에이젝스 에러');
+			};
+			xhr.send(formData);
+		} 
+		
+		
+		
+   }
+   
+   function check() {
+	   window.history.back();
+   }
+   
+   
+   
+   
+</script>
+   
+   
+   
+</body>
+</html>

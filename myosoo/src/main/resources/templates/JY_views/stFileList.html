@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습자료 등록</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+    <style>
+        table {
+            border-collapse: separate;
+            border-spacing: 0 8px; /* 각 셀 사이의 수직 간격 설정, 필요에 따라 조절하세요 */
+        }
+
+        th, td {
+            border-bottom: 1px solid #e5e7eb; /* 각 셀의 하단에 구분선을 추가합니다 */
+        }
+
+        th, td {
+            border-right: 1px solid #e5e7eb; /* 각 th 요소의 오른쪽 테두리를 추가하여 구분선을 만듭니다 */
+        }
+
+        th, td:last-child {
+            border-right: none; /* 마지막 th 요소에는 오른쪽 테두리를 추가하지 않습니다 */
+        }
+    </style>
+</head>
+<body>
+	<!-- header -->
+   	<div class="header"><th:block th:replace="~{fragments/header::headerFragment}"></th:block></div>
+    <div class="bg-blue-100 p-6 max-w-7xl mx-auto rounded-lg">      
+        <div class="pt-4">
+            <form action="stFileListView">
+            	<div class="flex items-center justify-between my-4">
+	                <div class="flex items-center">
+	                    <label class="block text-sm font-medium mb-1 w-48 " for="keyword">학습자료명</label>
+	                    <input th:value="${stFile.keyword}" type="text" id="keyword" name="keyword" class="ml-2 w-full border-2 p-2 rounded" placeholder="학습자료명을 입력하세요">
+	                    <select name="search1" id="search1" class="ml-2" th:value="${stFile.search1}">
+	                    	<option>자료구분</option>
+	                        <option th:value="st_tuto" th:selected="${stFile.search1} == 'st_tuto'">튜토리얼</option>
+	                        <option th:value="st_eduMedia" th:selected="${stFile.search1} == 'st_eduMedia'">교육영상</option>
+	                    </select>
+	                    <select name="search2" id="search2" class="ml-2" th:value="${stFile.search2}">
+	                    	<option>자료유형</option>
+	                        <option th:value="st_site" th:selected="${stFile.search2} == 'st_site'">웹사이트</option>
+	                        <option th:value="st_media" th:selected="${stFile.search2} == 'st_media'">동영상</option>
+	                        <option th:value="st_book" th:selected="${stFile.search2} == 'st_book'">교재</option>
+	                    </select>
+	                    <select name="search3" id="search3" class="ml-2" th:value="${stFile.search3}">
+	                    	<option>서비스구분</option>
+	                        <option th:value="st_full" th:selected="${stFile.search3} == 'st_full'">full(유료)</option>
+	                        <option th:value="st_short" th:selected="${stFile.search3} == 'st_short'">short(무료)</option>
+	                    </select>
+	                </div>
+	                <div>
+	                    <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded">조회하기</button>
+	                </div>
+	            </div>
+            </form>
+            <table class="w-full text-sm text-center text-gray-500 mb-4">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="py-3 px-0 w-20 h-12"></th>
+                        <th scope="col" class="py-2 px-0 w-28 h-12">썸네일</th>
+                        <th scope="col" class="py-3 px-0 w-64 h-12">학습자료명</th>
+                        <th scope="col" class="py-3 px-0 w-24 h-12">자료구분</th>
+                        <th scope="col" class="py-3 px-0 w-24 h-12">자료유형</th>
+                        <th scope="col" class="py-3 px-0 w-24 h-12">서비스구분</th>
+                        <th scope="col" class="py-3 px-0 w-24 h-12">등록일자</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                	<th:block th:each="stFile : ${listStFile}">
+	                    <tr class="bg-white border-b ">
+	                        <td class="py-2 px-0 w-20 h-12"><button id="detailButton" class="bg-blue-500 text-white w-20 h-16 rounded" th:onclick="|window.location.href='stFileDetailView?stfile_key=${stFile.stfile_key}'|">상세</button></td>
+	                        <td class="py-2 px-2 w-28 h-28 mx-0 items-center justify-center"><img th:src="'data:image/png;base64,' + ${stFile.stfile_imgEncod}" alt="image" class="w-40 h-24 object-cover rounded"></td>
+	                        <td class="py-4 px-0 w-64 h-28"><p class="w-100% break-all" th:text="${stFile.stfile_name}"></p></td>
+	                        <td class="py-4 px-0 w-24 h-28">
+	                        	<p th:if="${stFile.stfile_mikey == 10}" th:text="'튜토리얼'"></p>
+    							<p th:if="${stFile.stfile_mikey == 20}" th:text="'교육영상'"></p>
+	                        <td class="py-4 px-0 w-24 h-28">
+	                        	<p th:if="${stFile.stfile_method == 0}" th:text="'동영상'"></p>
+	                        	<p th:if="${stFile.stfile_method == 1}" th:text="'교재'"></p>
+	                        	<p th:if="${stFile.stfile_method == 2}" th:text="'웹사이트'"></p>
+	                        </td>
+	                        <td class="py-4 px-0 w-24 h-28">
+	                        	<p th:if="${stFile.stfilesv_mikey == 10}" th:text="'full(유료)'"></p>
+	                        	<p th:if="${stFile.stfilesv_mikey == 20}" th:text="'short(무료)'"></p>
+	                        </td>
+	                        <td class="py-4 px-0 w-24 h-28"><p th:text="${#dates.format(stFile.stfile_regdate, 'yyyy.MM.dd')}"></p></td>
+	                    </tr>
+	             	</th:block>
+                </tbody>
+            </table>
+            <nav aria-label="Page navigation example" class="text-center">
+			    <ul class="inline-flex -space-x-px text-sm">
+			        <li th:if="${page.startPage > page.pageBlock}">
+			            <a th:href="@{stFileListView(currentPage=${page.startPage - page.pageBlock}, keyword=${stFile.keyword}, search1=${stFile.search1}, search2=${stFile.search2}, search3=${stFile.search3})}"
+			               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+			                이전
+			            </a>
+			        </li>
+			        <li th:each="i : ${#numbers.sequence(page.startPage, page.endPage)}">
+			            <a th:href="@{stFileListView(currentPage=${i}, keyword=${stFile.keyword}, search1=${stFile.search1}, search2=${stFile.search2}, search3=${stFile.search3})}"
+			               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+			                [[${i}]]
+			            </a>
+			        </li>
+			        <li th:if="${page.endPage < page.totalPage}">
+			            <a th:href="@{stFileListView(currentPage=${page.startPage + page.pageBlock}, keyword=${stFile.keyword}, search1=${stFile.search1}, search2=${stFile.search2}, search3=${stFile.search3})}"
+			               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+			                다음
+			            </a>
+			        </li>
+			    </ul>
+			</nav>
+        </div>
+    </div>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

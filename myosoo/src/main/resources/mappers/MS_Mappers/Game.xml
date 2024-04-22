@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oracle.team2.msMapper">
+
+	<select id="msFindMemberById"
+		resultType="com.oracle.team2.model.Member">
+		SELECT * FROM member WHERE member_id = #{member_Id}
+	</select>
+
+	<insert id="msInsertGame"
+		parameterType="com.oracle.team2.model.Game2">
+		INSERT INTO game (
+		game_key, game_name, member_key,
+		game_maxlevel, game_submonth,
+		game_startdate, game_enddate,
+		game_subpercount, game_price, game_content, game_img,
+		game_regdate,
+		game_file, game_fileaddr
+		)
+		VALUES (
+		(SELECT COALESCE(MAX(game_key), 1000)
+		+ 1
+		FROM game),
+		#{game_name},
+		#{member_key},
+		#{game_maxlevel},
+		#{game_submonth},
+		#{game_startdate},
+		#{game_enddate, jdbcType=DATE},
+		#{game_subpercount},
+		#{game_price, jdbcType=INTEGER},
+		#{game_content},
+		#{game_img},
+		sysdate,
+		#{game_file},
+		#{game_fileaddr}
+		)
+
+	</insert>
+
+
+	<select id="msGameDetail"
+		resultType="com.oracle.team2.model.Game2">
+		SELECT * FROM game
+		ORDER BY game_key ASC
+	</select>
+
+
+	<select id="msGamePay"
+		resultType="com.oracle.team2.model.Member">
+		SELECT member_name, member_tel
+		FROM member
+		WHERE member_key =
+		#{member_key}
+	</select>
+
+
+	<insert id="msPayInsert"
+		parameterType="com.oracle.team2.model.Payment">
+		INSERT INTO payment (
+		game_key,
+		member_key,
+		payment_date,
+		payment_price,
+		payment_method
+		)
+		VALUES (
+		#{game_key},
+		#{member_key},
+		sysdate,
+		#{payment_price},
+		#{payment_method}
+		)
+
+	</insert>
+
+	<update id="msPayupdate"
+		parameterType="com.oracle.team2.model.Member">
+		UPDATE member
+		SET member_isfree = #{member_isfree}
+		WHERE
+		member_key = #{member_key}
+	</update>
+
+
+	<select id="msGamePrice"
+		resultType="com.oracle.team2.model.Game2">
+		select game_price from game where game_key = #{gameKey}
+	</select>
+
+	<select id="mspamentAll"
+		resultType="com.oracle.team2.model.Payment">
+		SELECT
+		p.payment_price,
+		p.payment_date,
+		g.game_name,
+		g.game_img,
+		g.game_enddate,
+		g.game_startdate,
+		s.study_name,
+		p.member_key
+		FROM
+		payment p
+		JOIN
+		game g ON p.game_key = g.game_key
+		LEFT JOIN
+		study s ON
+		p.game_key = s.game_key AND p.member_key = s.member_key
+		WHERE
+		p.member_key = #{member_key}
+	</select>
+
+
+	<delete id="msCardDelete"
+		parameterType="com.oracle.team2.model.Game2">
+		DELETE
+		FROM game
+		WHERE game_key = #{game_key}
+	</delete>
+
+
+	<select id="mscontentPayment"
+		resultType="com.oracle.team2.model.Payment">
+		SELECT *
+		FROM payment
+		WHERE game_key = #{game_key}
+	</select>
+	<update id="maGameUpdate"
+		parameterType="com.oracle.team2.model.Game2">
+		UPDATE game
+		SET
+		game_name = #{game_name},
+		member_key =
+		#{member_key},
+		game_price = #{game_price},
+		game_maxlevel =
+		#{game_maxlevel},
+		game_submonth = #{game_submonth},
+		game_startdate =
+		#{game_startdate},
+		game_enddate = #{game_enddate},
+		game_subpercount =
+		#{game_subpercount},
+		game_content = #{game_content},
+		game_update =
+		sysdate,
+		game_file = #{game_file},
+		game_fileaddr = #{game_fileaddr}
+		WHERE game_key = #{game_key}
+	</update>
+
+	<select id="mscontentBaduk"
+		resultType="com.oracle.team2.model.Game2">
+		SELECT * FROM game
+		ORDER BY game_key ASC
+	</select>
+
+</mapper>

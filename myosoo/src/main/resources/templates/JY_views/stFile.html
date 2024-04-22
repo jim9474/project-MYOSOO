@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습자료 등록</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+    <script>
+    /* 이미지 미리보기 코드 */
+	    function previewImage(event) {
+	        var input = event.target;
+	        var reader = new FileReader();
+	        reader.onload = function(){
+	            var dataURL = reader.result;
+	            var image = document.createElement('img');
+	            image.src = dataURL;
+	            image.style.maxWidth = '100%'; // 이미지의 최대 너비 설정
+	            document.getElementById('imagePreview').innerHTML = ''; // 이미지 미리보기를 초기화
+	            document.getElementById('imagePreview').appendChild(image); // 이미지를 미리보기 영역에 추가
+	        };
+	        reader.readAsDataURL(input.files[0]);
+	    }
+    
+	 	// 모든 입력 필드가 채워졌는지 확인하는 함수
+	    function checkInputs() {
+	        var inputs = document.querySelectorAll('input[type="text"], input[type="file"], select');
+	        var isFilled = true;
+
+	        inputs.forEach(function(input) {
+	            if (!input.value) {
+	                isFilled = false;
+	            }
+	        });
+
+	        return isFilled;
+	    }
+	 	
+	 	// 입력값 확인 및 저장 함수
+	    function save() {
+	        if (checkInputs()) {
+	            alert("저장이 완료되었습니다.");
+	            // 여기에 저장 로직을 추가할 수 있습니다.
+	        } else {
+	            alert("모든 입력을 완료해주세요.");
+	        }
+	    }
+    
+	</script>
+</head>
+<body>
+	<!-- header -->
+   	<div class="header"><th:block th:replace="~{fragments/header::headerFragment}"></th:block></div>
+    <div class="bg-blue-100 p-6 max-w-2xl mx-auto rounded-lg">
+        <div class="flex justify-between items-center mb-4">
+            <div class="text-lg font-semibold">학습등록</div>
+        </div>
+        <form action="stFileInsert" method="post" name="frm" enctype="multipart/form-data">
+	        <div>
+	            <label class="block text-sm font-medium mb-1" for="stfile_name">학습자료명</label>
+	            <input type="text" id="stfile_name"  name="stfile_name" th:value="${stfile_name}"
+	            	class="w-full border-2 p-2 rounded" placeholder="학습자료명을 입력하세요" required="required">
+	        </div>
+	        <div>
+	            <label class="block text-sm font-medium mb-1" for="stfile_mikey">자료구분</label>
+	            <select name="stfile_mikey" id="stfile_mikey" class="w-full border-2 p-2 rounded" required="required">
+				    <option th:value="10">튜토리얼</option>
+				    <option th:value="20">교육영상</option>
+				</select>
+	        </div>
+	        <div>
+	            <label class="block text-sm font-medium mb-1" for="stfile_method">자료유형</label>
+	            <select name="stfile_method" id="stfile_method" class="w-full border-2 p-2 rounded" required="required">
+	                <option th:value="2">웹사이트</option>
+	                <option th:value="0">동영상</option>
+	                <option th:value="1">교재</option>
+	            </select>
+	        </div>
+	        <div>
+	            <label class="block text-sm font-medium mb-1" for="stfile_file">첨부파일명 </label>
+	            <input type="text" id="stfile_file" name="stfile_file" th:value="${stfile_file}"
+	            	class="w-full border-2 p-2 rounded" placeholder="첨부파일명을 입력하세요 " required="required">
+	        </div>
+	        <div>
+	            <label class="block text-sm font-medium mb-1" for="stfile_fileaddr">첨부파일 주소 </label>
+	            <input type="text" id="stfile_fileaddr" name="stfile_fileaddr" th:value="${stfile_fileaddr}" 
+	            	class="w-full border-2 p-2 rounded" placeholder="첨부파일 주소를 입력하세요" required="required">
+	        </div>
+	        <div>
+	            <label class="block text-sm font-medium mb-1" for="stfilesv_mikey">서비스구분</label>
+	            <select name="stfilesv_mikey" id="stfilesv_mikey" class="w-full border-2 p-2 rounded" required="required">
+	                <option th:value="10">full(유료)</option>
+	                <option th:value="20">short(무료)</option>
+	            </select>
+	        </div>
+	        <div>
+			    <label class="block text-sm font-medium mb-1" for="stfile_content">자료내용</label>
+			    <textarea id="stfile_content" name="stfile_content" th:value="${stfile_content}"
+			    	class="w-full h-96 border-2 p-2 rounded" placeholder="자료내용을 입력하세요" required="required"></textarea>
+			</div>
+	         <div>
+	             <label class="block text-sm font-medium mb-1" for="stfile_img">이미지 업로드</label>
+	             <input type="file" class="form-control" id="stfile_img" name="file" accept="image/*" onchange="previewImage(event)" required="required">
+	         </div>
+	         <!-- 이미지 미리보기 -->
+	         <div id="imagePreview"></div>
+	         <div class="bg-blue-100 p-6 max-w-2xl mx-auto rounded-lg text-center">
+	         	<th:block><th:if test="${msg!=null}" th:text="${msg}"></th:if></th:block>
+	    		<button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded" onclick="save()">숙제 저장</button>
+			</div>
+		</form>
+    </div>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

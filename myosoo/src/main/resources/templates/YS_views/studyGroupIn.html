@@ -1,0 +1,308 @@
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>메인화면</title>
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+	th:src="@{js/jquery-3.7.1.min.js}"></script>
+
+</head>
+
+<body>
+	<!-- header -->
+	<th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+	<div class=" p-6 max-w-3xl mx-auto rounded-lg my-10"
+		th:each="gameContentNames:${studyGroupIn}">
+		<div class="bg-gray-50 p-6 shadow-md">
+
+			<div class="mb-4 flex justify-between">
+				<div class="w-1/2 mr-2">
+					<label class="block text-gray-700 text-sm font-bold mb-2"
+						for="publisher-name"> 게임콘텐츠명 </label> <input
+						th:value="${gameContentNames.game_name}"
+						class="shadow
+						appearance-none border rounded w-full py-2 px-3 text-gray-700
+						leading-tight focus:outline-none
+						focus:shadow-outline"
+						id="publisher-name" type="text" placeholder="" readonly>
+				</div>
+				<div class="w-1/2 ml-2">
+					<label class="block text-gray-700 text-sm font-bold mb-2"
+						for="publisher-code"> 구독기간 </label> <input
+						th:value="${gameContentNames.totaldate}"
+						class=" shadow
+						appearance-none border rounded w-full py-2 px-3 text-gray-700
+						leading-tight focus:outline-none
+						focus:shadow-outline"
+						id="gameContentTotalDate" name="" type="text" placeholder=""
+						readonly>
+				</div>
+			</div>
+			<div class="mb-4 flex justify-between">
+				<div class="w-1/2 mr-2">
+					<label class="block text-gray-700 text-sm font-bold mb-2"
+						for="publisher-name"> 구독가능인원 </label> <input
+						th:value="${gameContentNames.game_subpercount}"
+						class=" shadow
+						appearance-none border rounded w-full py-2 px-3 text-gray-700
+						leading-tight focus:outline-none
+						focus:shadow-outline"
+						id="gameContentMaxPerson" name="gameContentMaxPerson" type="text"
+						placeholder="" readonly>
+				</div>
+				<div class="w-1/2 ml-2">
+					<label class="block text-gray-700 text-sm font-bold mb-2"
+						for="publisher-code"> 잔여 M/M </label> <input
+						th:value="${gameContentNames.mm}"
+						class=" shadow
+						appearance-none border rounded w-full py-2 px-3 text-gray-700
+						leading-tight focus:outline-none
+						focus:shadow-outline"
+						id="publisher-code" type="text" placeholder="" readonly>
+				</div>
+			</div>
+		</div>
+		<div class="bg-blue-100 p-6 rounded-lg shadow-md">
+			<div class="border-blue-200 pt-4">
+				<h3 class="text-lg font-bold mb-4">학습그룹 입력</h3>
+				<form action="/studyGroupIn">
+					<input type="hidden" th:value="${gameContentNames.game_key}"
+						name="game_key" id="game_key" />
+					<div class="mb-4">
+						<label class="block mb-2 text-sm font-bold text-gray-700"
+							for="username"> 교육자명 </label>
+						<th:block th:if="${session.member_mikey==10}">
+							<input th:value="${session.member_name}"
+								class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="username" type="text" placeholder="" readonly="readonly">
+
+							<input type="hidden" name="member_key" id="member_key"
+								th:value="${session.member_key}">
+						</th:block>
+					</div>
+					<div class="mb-4">
+						<label class="block mb-2 text-sm font-bold text-gray-700"
+							for="amount"> 학습그룹명 </label> <input
+							class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+							id="study_name" name="study_name" type="text" placeholder="">
+					</div>
+					<div class="mb-4">
+						<label class="block mb-2 text-sm font-bold text-gray-700"
+							for="amount"> 그룹제한인원 </label> <input
+							class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+							id="study_maxperson" name="study_maxperson" type="number"
+							placeholder="">
+					</div>
+					<div class="flex justify-btween">
+						<div class="mb-4 gap-10 mr-20">
+							<label class="block mb-2 text-sm font-bold text-gray-700"
+								for="period"> 학습 개월 </label> <input min="0" max="12"
+								class="shadow appearance-none border rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="study_month" name="study_month" type="number" placeholder="">
+							<span class="text-sm ml-3">개월</span>
+						</div>
+						<div class="mb-4 ml-20">
+							<label class="block mb-2 text-sm font-bold text-gray-700"
+								for="period"> 최대 레벨</label> <input
+								class="shadow appearance-none border rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="study_maxlevel" name="study_maxlevel" type="number"
+								placeholder=""> <span class="text-sm ml-3">레벨</span>
+						</div>
+					</div>
+					<div class="mb-4">
+						<label class="block mb-2 text-sm font-bold text-gray-700"
+							for="date-range"> 학습기간 </label>
+						<div class="flex gap-2">
+							<input
+								class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="study_startdate" name="study_startdate" type="date"
+								placeholder="" onchange="calculateEndDate()"> <span>~</span>
+							<input
+								class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								type="text" id="study_enddate" name="study_enddate"
+								value="23.10.31">
+						</div>
+					</div>
+
+					<div class="mb-4">
+						<label class="block mb-2 text-sm font-bold text-gray-700"
+							for="delay"> 비고 </label>
+						<textarea
+							class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+							id="study_bigo" name="study_bigo" rows="3" placeholder=""></textarea>
+					</div>
+
+					<div class="flex items-center justify-center">
+						<button
+							class="bg-blue-300 hover:bg-blue-400 text-gray-700 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+							type="submit">학습 그룹 등록하기</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+<script>
+
+
+$(document).ready(function() {
+    // study_maxperson 입력란 값이 변경될 때마다 호출되는 함수
+    $('#study_maxperson').on('input', function() {
+        // 입력된 그룹제한인원 값
+        var groupLimit = parseInt($(this).val());
+        // 구독 가능인원 값
+        var subscriptionLimit = parseInt($('#gameContentMaxPerson').val());
+
+        // 그룹제한인원이 구독 가능인원을 넘어가는지 확인
+        if (groupLimit > subscriptionLimit) {
+            // 그룹제한인원이 구독 가능인원을 넘으면 안내 메시지 출력
+            alert('그룹제한인원은 구독 가능인원을 넘을 수 없습니다.');
+            // 그룹제한인원 값을 구독 가능인원 값으로 변경
+            $(this).val(subscriptionLimit);
+        }
+    });
+    
+    // 학습 시작일을 변경할 때마다 호출되는 함수
+    $('#study_startdate').on('change', function() {
+        // 구독 기간의 시작일과 종료일을 가져옴
+        var subscriptionStartDate = new Date($('#gameContentTotalDate').val().split(' ~ ')[0]);
+        var subscriptionEndDate = new Date($('#gameContentTotalDate').val().split(' ~ ')[1]);
+        
+        // 선택된 학습 시작일
+        var studyStartDate = new Date($(this).val());
+        
+        // 학습 시작일이 구독 기간 내에 있는지 확인
+        if (studyStartDate < subscriptionStartDate || studyStartDate > subscriptionEndDate) {
+            // 학습 시작일이 구독 기간을 벗어나면 경고 메시지를 표시하고 이전으로 변경
+            alert('구독 기간 내에서만 학습 기간을 선택할 수 있습니다.');
+            $(this).val(''); // 입력 값을 지워서 선택하지 못하게 함
+        }
+        
+        // study_startdate가 변경될 때마다 학습 개월 옵션도 업데이트
+        updateMonthOptions();
+        calculateEndDate();
+    });
+    
+    // study_month 변경 시 호출되는 함수
+    $('#study_month').on('change', function() {
+        // 구독 기간 내에서 학습 개월을 초과하지 않도록 제한
+        var maxMonths = parseInt($("#gameContentTotalMonths").val()); // 구독 가능한 총 개월 수
+        var selectedMonths = parseInt($(this).val()); // 선택한 학습 개월 수
+        
+        if (selectedMonths > maxMonths) {
+            // 선택한 학습 개월이 구독 가능한 총 개월 수를 초과하면
+            // 학습 개월을 구독 가능한 총 개월 수로 설정
+            $(this).val(maxMonths);
+        }
+        
+        calculateEndDate();
+    });
+    
+    // 구독 기간에 따라 학습 가능한 개월 수를 업데이트하는 함수
+    function updateMonthOptions() {
+        var subscriptionStartDate = new Date($('#gameContentTotalDate').val().split(' ~ ')[0]);
+        var subscriptionEndDate = new Date($('#gameContentTotalDate').val().split(' ~ ')[1]);
+        
+        var months = (subscriptionEndDate.getFullYear() - subscriptionStartDate.getFullYear()) * 12;
+        months -= subscriptionStartDate.getMonth();
+        months += subscriptionEndDate.getMonth();
+        
+        // 학습 개월 선택란 초기화
+        $('#study_month').empty();
+        
+        // 구독 기간 내에서 학습 가능한 개월 수로 선택란을 채움
+        for (var i = 1; i <= months; i++) {
+            $('#study_month').append($('<option>', {
+                value: i,
+                text: i
+            }));
+        }
+    }
+    
+    // calculateEndDate 함수 정의
+    function calculateEndDate() {
+        var startDateStr = $("#study_startdate").val();
+        var months = parseInt($("#study_month").val());
+        
+        // startDate가 비어 있거나 months가 비어 있으면 계산할 수 없음
+        if (startDateStr === "" || isNaN(months)) {
+            return;
+        }
+        
+        // startDate 문자열을 Date 객체로 변환
+        var startDate = new Date(startDateStr);
+        
+        // months를 더해서 endDate 계산
+        var endDate = new Date(startDate.setMonth(startDate.getMonth() + months));
+        
+        // 계산된 날짜를 yyyy-MM-dd 형식으로 변환
+        var endDateStr = endDate.toISOString().split('T')[0];
+        
+        // study_enddate 입력 필드에 계산된 값 설정
+        $('#study_enddate').val(endDateStr);
+    }
+    $('#study_month').on('change', function() {
+        // 구독 기간의 시작일과 종료일을 가져옴
+        var subscriptionStartDate = new Date($('#gameContentTotalDate').val().split(' ~ ')[0]);
+        var subscriptionEndDate = new Date($('#gameContentTotalDate').val().split(' ~ ')[1]);
+        
+        // 선택된 학습 개월 수
+        var selectedMonths = parseInt($(this).val());
+        
+        // 선택된 학습 개월이 구독 기간 내에 있는지 확인
+        if (subscriptionStartDate && subscriptionEndDate && selectedMonths) {
+            var maxMonths = getMonthsDifference(subscriptionStartDate, subscriptionEndDate);
+            
+            // 선택한 학습 개월이 구독 기간을 벗어나면
+            if (selectedMonths > maxMonths) {
+                // 구독 기간 내에서만 학습 개월을 선택할 수 있도록
+                // 학습 개월을 구독 가능한 총 개월 수로 설정
+                $(this).val(maxMonths);
+                alert('구독 기간 내에서만 학습 개월을 선택할 수 있습니다.');
+            }
+        }
+        
+        calculateEndDate();
+    });
+    
+    // calculateEndDate 함수 정의
+    function calculateEndDate() {
+        var startDateStr = $("#study_startdate").val();
+        var months = parseInt($("#study_month").val());
+        
+        // startDate가 비어 있거나 months가 비어 있으면 계산할 수 없음
+        if (startDateStr === "" || isNaN(months)) {
+            return;
+        }
+        
+        // startDate 문자열을 Date 객체로 변환
+        var startDate = new Date(startDateStr);
+        
+        // months를 더해서 endDate 계산
+        var endDate = new Date(startDate.setMonth(startDate.getMonth() + months));
+        
+        // 계산된 날짜를 yyyy-MM-dd 형식으로 변환
+        var endDateStr = endDate.toISOString().split('T')[0];
+        
+        // study_enddate 입력 필드에 계산된 값 설정
+        $('#study_enddate').val(endDateStr);
+    }
+    
+    // getMonthsDifference 함수 정의
+    function getMonthsDifference(date1, date2) {
+        var months;
+        months = (date2.getFullYear() - date1.getFullYear()) * 12;
+        months -= date1.getMonth();
+        months += date2.getMonth();
+        return months <= 0 ? 1 : months;
+    }
+    
+});
+
+
+</script>
+
+</html>

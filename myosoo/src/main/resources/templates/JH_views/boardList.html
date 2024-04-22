@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+	<th:block th:replace="~{fragments/configure::configure}"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+	<!-- header -->
+	<th:block th:replace="~{fragments/header::headerFragment}"></th:block> 
+	
+	<div class="bg-white p-8 rounded-md w-full">
+		<div>
+			<div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+				<div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+					<table class="min-w-full leading-normal">
+						<nav aria-label="Progress">
+                        <h1 class="text-3xl font-bold text-center mt-4 mb-4">게시판</h1>
+                        <div class="w-1/2 mx-auto max-w-2xl mt-5 mb-16">
+						  <ol role="list" class="space-y-4 m-8 md:flex md:space-x-8 md:space-y-0">
+						    <li class="md:flex-1">
+						      <!-- NOTICE -->
+						      <a href="#" id="filterNotice" class="group flex flex-col border-indigo-400 py-2 pl-4 hover:border-indigo-600 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4" style="text-align: center;">
+						        <span class="font-medium text-indigo-400 group-hover:text-indigo-600">NOTICE</span>
+						        <span class="font-medium">공지사항</span>
+						      </a>
+						    </li>
+						    <li class="md:flex-1">
+						      <!-- FAQ -->
+						      <a href="#" id="filterFaq" class="group flex flex-col border-gray-400 py-2 pl-4 hover:border-gray-600 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4" style="text-align: center;">
+						        <span class="font-medium text-gray-400 group-hover:text-gray-600">FAQ</span>
+						        <span class="font-medium">자주묻는 질문</span>
+						      </a>
+						    </li>
+						    <li class="md:flex-1">
+						      <!-- Q&A 운영자는 일대일 문의 확인으로 이동 -->
+						      <a id="qnaLink" class="group flex flex-col border-yellow-400 py-2 pl-4 hover:border-yellow-600 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4" style="text-align: center;">
+						        <span class="font-medium text-yellow-400 group-hover:text-yellow-600">Q&A</span>
+						        <span class="font-medium">일대일 문의</span>
+						      </a>
+						    </li>
+						  </ol>
+                        </div>
+						</nav>
+						<thead>
+                        <!-- 검색 -->
+						<div class="mb-8 pt-2 relative mx-auto text-gray-600 w-full max-w-xs md:max-w-sm lg:max-w-md">
+						    <input class="border-2 border-gray-300 bg-white h-10 pl-7 pr-20 rounded-lg text-sm focus:outline-none w-full"
+						      type="search" name="search" id="searchInput" placeholder="제목을 검색해보세요">
+						    <button type="button" id="searchButton" class="absolute right-0 top-0 mt-5 mr-4">
+						      <svg class="text-gray-600 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg"
+						        viewBox="0 0 56.966 56.966" style="enable-background:new 0 0 56.966 56.966;"
+						        width="512px" height="512px">
+						        <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
+						      </svg>
+						    </button>
+						</div>
+							<tr class="whitespace-nowrap">
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center font-medium font-semibold text-gray-600 uppercase tracking-wider">
+									No
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center font-medium font-semibold text-gray-600 uppercase tracking-wider">
+									구분
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center font-medium font-semibold text-gray-600 uppercase tracking-wider">
+									주제
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center font-medium font-semibold text-gray-600 uppercase tracking-wider">
+									제목
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center font-medium font-semibold text-gray-600 uppercase tracking-wider">
+									작성자
+								</th>
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center font-medium font-semibold text-gray-600 uppercase tracking-wider">
+									조회수
+								</th>
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center font-medium font-semibold text-gray-600 uppercase tracking-wider">
+									댓글수
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center font-medium font-semibold text-gray-600 uppercase tracking-wider">
+									작성일자
+								</th>
+							</tr>
+						</thead>
+						<tbody class="px-5 py-3 border-b-2 text-center whitespace-nowrap font-medium text-gray-500 uppercase tracking-wider">
+							<tr class="cursor-pointer" th:each="boards : ${boards}" th:attr="data-board-key=${boards.board_key}">
+						    <td class="px-1 py-1" th:text="${boards.rn}">No</td>
+ 							<td th:attr="data-makey=${boards.board_makey}" th:text="${boards.board_makey}">구분</td> 
+ 							<td th:attr="data-mikey=${boards.board_mikey}" th:text="${boards.board_mikey}">주제</td> 							 
+						    <td th:text="${boards.board_title}">제목</td>
+						    <td th:text="${boards.board_writer}">작성자</td>
+						    <td th:text="${boards.board_see}">조회수</td>
+						    <td th:text="${boards.board_comcount}">댓글수</td>
+						    <td th:text="${boards.board_regdate}" data-format="date">작성일자</td>
+					  		</tr>
+						</tbody>
+					</table>
+					</div>
+					
+					<!-- 페이징 버튼 -->
+					<nav aria-label="Page navigation example" class="text-center mt-6">
+					    <ul class="inline-flex -space-x-px text-sm">
+					        <li th:if="${page != null and page.startPage > page.pageBlock}">
+					            <a th:href="@{/boardList(currentPage=${page.startPage - page.pageBlock})}"
+					               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+					                이전
+					            </a>
+					        </li>
+					        <li th:each="i : ${#numbers.sequence(page.startPage, page.endPage)}">
+					            <a th:href="@{/boardList(currentPage=${i})}"
+					               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+					                [[${i}]]
+					            </a>
+					        </li>
+					        <li th:if="${page.endPage < page.totalPage}">
+					            <a th:href="@{/boardList(currentPage=${page.startPage + page.pageBlock})}"
+					               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+					                다음
+					            </a>
+					        </li>
+					    </ul>
+					</nav>
+
+					<!-- 글쓰기 버튼(운영자의 경우에는 글쓰기 버튼 노출, 그 외 회원은 노출 X -->
+                      <input type="hidden" id="memberMikey" th:value="${session.member_mikey}" />
+                      <div class="flex justify-end">
+                        <button id="writeButton" onclick="goToSubmitBoard()" class="group relative mt-2 mr-4 h-8 w-20 overflow-hidden rounded-2xl bg-gray-500 text-sm text-white">
+                          글쓰기
+                          <div class="absolute inset-0 h-full w-full scale-0 rounded-2xl transition-all duration-300 group-hover:scale-100 group-hover:bg-white/30"></div>
+                        </button>
+                      </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+
+<!-- <div>
+    <script th:src="@{/js/list/list_list.js?ver=031}" type="text/javascript"></script>
+</div> -->
+
+
+<!-- JavaScript 코드 추가 -->
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		
+		
+	// 구분과 주제에 따라 텍스트 설정하는 함수
+    function updateTextContent() {
+        document.querySelectorAll('td[data-makey]').forEach(td => {
+            const makey = td.dataset.makey;
+            switch (makey) {
+                case '400':
+                    td.textContent = '공지';
+                    break;
+                case '500':
+                    td.textContent = 'FAQ';
+                    break;
+                case '600':
+                    td.textContent = 'Q&A';
+                    break;
+            }
+        });
+
+        document.querySelectorAll('td[data-mikey]').forEach(td => {
+            const mikey = td.dataset.mikey;
+            const makey = td.closest('tr').querySelector('td[data-makey]').dataset.makey;
+            let topicText = '';
+            if (makey === '400') {
+                switch (mikey) {
+                    case '10': topicText = '공통'; break;
+                    case '20': topicText = '상품안내'; break;
+                    case '30': topicText = '이용안내'; break;
+                    case '40': topicText = '기타'; break;
+                }
+            } else if (makey === '500') {
+                switch (mikey) {
+                    case '10': topicText = '상품결제'; break;
+                    case '20': topicText = '숙제관리'; break;
+                    case '30': topicText = '학습그룹'; break;
+                    case '40': topicText = '기타'; break;
+                }
+            } else if (makey === '600') {
+                switch (mikey) {
+                    case '10': topicText = '회원정보'; break;
+                    case '20': topicText = '상품구매'; break;
+                    case '30': topicText = '사이트이용'; break;
+                    case '40': topicText = '기타'; break;
+                }
+            }
+            td.textContent = topicText;
+        });
+    }
+
+    // 날짜 형식 조정하는 함수
+    function formatDateElements() {
+        document.querySelectorAll('td[data-format="date"]').forEach(td => {
+            const originalText = td.textContent.trim();
+            const parts = originalText.split(' ');
+            const year = parts[5];
+            const month = {
+                Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+                Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+            }[parts[1]];
+            const day = parts[2].padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            td.textContent = formattedDate;
+        });
+    }
+    
+    function formatDate(dateString) {
+    return dateString.slice(0, 10); // 'YYYY-MM-DD' 형식으로 잘라냅니다.
+	}
+	
+    // 검색 버튼 클릭 이벤트
+    const tbody = document.querySelector('table tbody');
+    
+    // 이벤트 위임을 사용하여 클릭 이벤트 처리 (이렇게 안하면 클릭이벤트가 안됨)
+    tbody.addEventListener('click', function(event) {
+        const tr = event.target.closest('tr');
+        if (tr && tr.dataset.boardKey) {  // 데이터 속성 검사
+            const board_key = tr.dataset.boardKey;
+            fetch(`/board_see?board_key=${board_key}`)
+            .then(response => {
+            	
+                window.location.href = `/boardDetail?board_key=${board_key}`;
+                console.log('혹시 이것도 두번찍히나??');
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    });
+
+    document.getElementById('searchButton').addEventListener('click', function() {
+        var searchInput = document.getElementById('searchInput').value;
+        fetch(`/searchBoards?keyword=${encodeURIComponent(searchInput)}`, {
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => {
+            tbody.innerHTML = '';
+            data.forEach(board => {
+                const formattedDate = formatDate(board.board_regdate);
+                tbody.innerHTML += `<tr class="cursor-pointer whitespace-nowrap" data-board-key="${board.board_key}">
+                    <td class="px-1 py-1">${board.board_key}</td>
+                    <td data-makey="${board.board_makey}">${board.board_makey}</td>
+                    <td data-mikey="${board.board_mikey}">${board.board_mikey}</td>
+                    <td>${board.board_title}</td>
+                    <td>${board.board_writer}</td>
+                    <td>${board.board_see}</td>
+                    <td>${board.board_comcount}</td>
+                    <td data-format="date">${formattedDate}</td>
+                </tr>`;
+            });
+            updateTextContent();  // 업데이트된 데이터에 텍스트 콘텐츠 적용
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    
+    // 만들어둔 함수 적용 
+    updateTextContent();
+    formatDateElements();
+    
+	const memberMikey = document.getElementById("memberMikey").value;
+    const qnaLink = document.getElementById("qnaLink");
+        
+        if(memberMikey === '40') {
+			qnaLink.href = '/qnaList'
+		} else {
+			qnaLink.href = 'myQnAList';
+		}
+		
+	    // 글쓰기 버튼 (로그인하지 않은 상태에서는 작성 불가, 운영자만 공지사항 및 자주묻는 질문 작성버튼 노출)
+	    const writeButton = document.getElementById("writeButton");
+
+	    if (memberMikey === '40') {
+	        // memberMikey 값이 40인 경우, 글쓰기 버튼을 보여주고, 클릭 시 게시글 작성 페이지로 이동
+	        writeButton.style.display = '';
+	        writeButton.addEventListener("click", function() {
+	            window.location.href = '/boardWrite';
+	        });
+	    } else {
+	        // memberMikey 값이 40이 아닌 경우, 글쓰기 버튼을 숨김
+	        writeButton.style.display = 'none';
+	    }
+	    
+	// 상단 구분 클릭시 필터링 기능 
+	document.getElementById('filterNotice').addEventListener('click', function(event) {
+		event.preventDefault(); // 기본 이벤트를 방지
+		filterCategory('공지');
+	});
+
+	document.getElementById('filterFaq').addEventListener('click', function(event) {
+		event.preventDefault(); // 기본 이벤트를 방지
+		filterCategory('FAQ');
+	});
+
+	function filterCategory(categoryName) {
+	    var rows = document.querySelectorAll('tbody tr');
+	    rows.forEach(function(row) {
+	        var category = row.querySelector('td[data-makey]').textContent.trim(); 
+	        if (category !== categoryName) {
+	            row.style.display = 'none';
+	        } else {
+	            row.style.display = '';
+	        }
+	    });
+	}
+	
+	// 각 게시글 행에 클릭 이벤트 리스너 추가
+	     /* document.querySelectorAll('tr[data-board-key]').forEach(tr => {
+	        tr.addEventListener('click', function() {
+	            const board_key = this.getAttribute('data-board-key');
+	             // 조회수 증가 요청
+	        	fetch(`/board_see?board_key=${board_key}`)
+	        	.then(response => {
+					  window.location.href = `/boardDetail?board_key=${board_key}`;
+				})
+	          .catch(error => console.error('Error: ', error));
+	        });
+	        
+	        
+	    }); */
+});
+		
+		
+
+</script>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oracle.team2.jmMapper">
+	<select id="jmLogin" parameterType="Member" resultType="Member">
+		select * 
+		from member
+		where member_id = #{member_id} and member_isdelete = 0
+	</select>
+	
+	<select id="jmFindID" parameterType="Member" resultType="Member">
+    	select *
+		from member
+		WHERE member_name = #{member_name} AND member_email = #{member_email}
+	</select>
+
+
+	<select id="jmFindPassword" parameterType="Member" resultType="int">
+		select count(1)
+		from member
+		where member_id = #{member_id}
+		  and member_email = #{member_email}
+		  and member_name = #{member_name}
+	</select>
+
+	<update id="jmUpdatePassword" parameterType="Member">
+		update member
+		set
+			member_pw = #{member_pw}
+		where member_id = #{member_id}
+		  and member_email = #{member_email}
+		  and member_name = #{member_name}
+	</update>
+
+	<insert id="jmEcSave" parameterType="EcCode">
+		INSERT INTO eccode (eccode_key, eccode_email, eccode_code, eccode_confirm)
+		VALUES (eccode_key_seq.nextval, #{eccode_email}, #{eccode_code}, 0)
+	</insert>
+
+	<select id="jmConfirmEmail" parameterType="EcCode" resultType="EcCode">
+		select *
+		from eccode
+		where ECCODE_EMAIL=#{eccode_email}
+		  and ECCODE_CODE=#{eccode_code} and eccode_confirm=0
+	</select>
+
+	<update id="jmUpdateEcCode" parameterType="EcCode">
+		update eccode set ECCODE_CONFIRM = 1
+		where eccode_email = #{eccode_email} and eccode_code = #{eccode_code} and eccode_confirm=0
+	</update>
+	
+</mapper>

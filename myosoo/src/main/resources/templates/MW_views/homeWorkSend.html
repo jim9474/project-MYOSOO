@@ -1,0 +1,350 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+</head>
+<body>
+    <!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+    <div class="bg-blue-100 p-6 max-w-5xl mx-auto rounded-lg">
+               
+        <div class="pt-4">
+ 
+            <div class="flex items-center justify-between my-4">
+                <div class="flex items-center">
+                    <label class="block text-sm font-medium mb-1 " for="period">숙제명</label>
+                    <select name="" id="homeworkSelect" class="ml-2">
+                        <option th:value="0"> 전체 </option>
+                        <option th:each="group : ${groupList}" th:text="${group.study_name}" th:value="${group.study_key}"></option>
+                    </select>
+                </div>
+                <div>
+                    <button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="homeworkList()">조회하기</button>
+                </div>
+            </div>
+            <table class="w-full text-sm text-left text-gray-500 ">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+                    <tr>
+                        <th scope="col" class="py-3 px-6"></th>
+                        <th scope="col" class="py-3 px-6">숙제명</th>
+                        <th scope="col" class="py-3 px-6">숙제내용</th>
+                        <th scope="col" class="py-3 px-6">레벨</th>
+                        <th scope="col" class="py-3 px-6">학습그룹</th>
+                        <th scope="col" class="py-3 px-6">제출기한</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody1">
+                </tbody>
+            </table>
+            <div id="pagination1" class="pagination flex justify-center mt-4">
+    		<!-- 페이지 번호가 여기에 들어갈 것입니다. -->
+			</div>
+        </div>
+
+        <div class="border-t-2 pt-4">
+ 
+            <div class="flex items-center justify-between my-4">
+                <div class="flex items-center">
+                    <label class="block text-sm font-medium mb-1 " for="period">학습그룹</label>
+                    <select name="" id="groupStudent" class="ml-2">
+                        <option th:each="group : ${groupList}" th:text="${group.study_name}" th:value="${group.study_key}"></option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="studentList()">대상 조회</button>
+                    <button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="selectAllCheckboxes()">전체 선택</button>
+                    <button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="sendHomework()">전송 하기</button>
+                </div>
+            </div>
+            <table class="w-full text-sm text-left text-gray-500 ">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+                    <tr>
+                        <th scope="col" class="py-3 px-6"></th>
+                        <th scope="col" class="py-3 px-6">학습자명</th>
+                        <th scope="col" class="py-3 px-6">전화번호</th>
+                        <th scope="col" class="py-3 px-6">현재레벨</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody2">
+                </tbody>
+            </table>
+            <div id="pagination2" class="pagination flex justify-center mt-4">
+    		<!-- 페이지 번호가 여기에 들어갈 것입니다. -->
+			</div>
+        </div>
+    </div>
+    
+    <script>
+    	function studentList() {
+    		var groupStudent = document.getElementById("groupStudent").value;
+    		console.log(groupStudent);
+    		
+    		var formData = new FormData();
+    		formData.append('study_key', groupStudent);
+    		
+    		var xhr = new XMLHttpRequest();
+    		xhr.open('post', '/studentList', true);
+    		xhr.onload = function () {
+    	        if (xhr.status === 200) {
+    	        	var studentList = JSON.parse(xhr.responseText);
+                    var tbody2 = document.getElementById("tbody2");
+                    tbody2.innerHTML = ''; // 테이블 내용 초기화
+                    
+                 	// 한 페이지에 보여질 행의 수
+    	            var rowsPerPage = 5;
+    	            var currentPage = 0;
+    	            
+    	            // 페이징 처리
+                    // 페이징 처리
+    	            function displayRows(start, end) {
+    	                tbody2.innerHTML = '';
+    	                for (var i = start; i < end; i++) {
+    	                    if (studentList[i]) {
+    	                    	var student = studentList[i];
+    	                    	var row = '<tr class="bg-white border-b">' +
+                            		'<td><input class="ml-6" type="checkbox" value="'+student.member_key+'" data-student-level="' + student.student_level + '" data-study-key="' + student.study_key + '"></td>' +
+                            		'<td class="py-4 px-6">' + student.member_name + '</td>' +
+                            		'<td class="py-4 px-6">' + student.member_tel + '</td>' +
+                            		'<td class="py-4 px-6">' + student.student_level + '</td>' +
+                            		'</tr>';
+                        		tbody2.innerHTML += row; // 테이블에 행 추가
+    	                    }
+    	                }
+    	            }
+                        	
+    	         	// 페이지 번호 생성
+    	            function setupPagination() {
+    	                var pagination2 = document.getElementById('pagination2');
+    	                pagination2.innerHTML = '';
+
+    	                var totalPages = Math.ceil(studentList.length / rowsPerPage);
+    	                for (var i = 1; i <= totalPages; i++) {
+    	                    var pageLink2 = document.createElement('a');
+    	                    pageLink2.href = '/page'+i;
+    	                    pageLink2.textContent = i;
+    	                    pageLink2.className = 'px-3 py-1 mx-1 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-300';
+    	                    pageLink2.onclick = function() {
+    	                        currentPage = parseInt(this.textContent) - 1;
+    	                        var start = currentPage * rowsPerPage;
+    	                        var end = start + rowsPerPage;
+    	                        displayRows(start, end);
+    	                        
+    	                     	// 라디오 버튼 해제
+    	                        var selectedRadio = document.querySelector('input[name="radio"]:checked');
+    	                        if (selectedRadio) {
+    	                            selectedRadio.checked = false;
+    	                        }
+    	                        
+    	                        return false; // 기본 동작(페이지 이동) 막음
+    	                    };
+    	                    pagination2.appendChild(pageLink2);
+    	                }
+    	            }
+
+    	            // 초기 호출
+    	            setupPagination();
+    	            displayRows(0, rowsPerPage);
+    	            
+    	         	// 라디오 버튼 변경 시 이벤트 리스너 등록
+    	            var radios = document.getElementsByName("radio");
+    	            radios.forEach(function(radio) {
+    	                radio.addEventListener("change", function() {
+    	                	// 선택된 라디오 버튼의 부모 요소인 <tr>을 찾음
+    	                    var selectedRow = this.closest('tr');
+    	                    // var selectedHomeworkLevel = this.value; // 선택된 숙제의 레벨 가져오기
+    	                    var homeworkLevel = selectedRow.querySelector('.homework-level').textContent;
+    	                    var hStudyKey = radio.dataset.studyKey;
+    	                    console.log(homeworkLevel, hStudyKey);
+    	                    disableCheckboxes(homeworkLevel, hStudyKey); // 비활성화할 체크박스 처리
+    	                    
+    	                 	// 체크박스 버튼 해제
+    	                    var selectedCheckBox = document.querySelector('input[type="checkbox"]:checked');
+    	                    if (selectedCheckBox) {
+    	                    	selectedCheckBox.checked = false;
+    	                    }
+    	                });
+    	            });
+                    
+    	        } else {
+    	            console.error('Request failed. Status: ' + xhr.status);
+    	        }
+    	    }; 
+    		xhr.send(formData);
+    		
+    		// 라디오 버튼 해제
+            var selectedRadio = document.querySelector('input[name="radio"]:checked');
+            if (selectedRadio) {
+                selectedRadio.checked = false;
+            }
+    	}
+    	
+    	function homeworkList() {
+    		var homeworkSelect = document.getElementById("homeworkSelect").value;
+    	    console.log(homeworkSelect);
+
+    	    var formData = new FormData();
+    	    formData.append('study_key', homeworkSelect);
+
+    	    var xhr = new XMLHttpRequest();
+    	    xhr.open('POST', '/homeworkList', true);
+    	    xhr.onload = function() {
+    	        if (xhr.status === 200) {
+    	            var homeworkList = JSON.parse(xhr.responseText);
+    	            var tbody1 = document.getElementById("tbody1");
+    	            tbody1.innerHTML = '';
+
+    	            // 한 페이지에 보여질 행의 수
+    	            var rowsPerPage = 5;
+    	            var currentPage = 0;
+
+    	            // 페이징 처리
+    	            function displayRows(start, end) {
+    	                tbody1.innerHTML = '';
+    	                for (var i = start; i < end; i++) {
+    	                    if (homeworkList[i]) {
+    	                        var homework = homeworkList[i];
+    	                        var row = '<tr class="bg-white border-b">' +
+    	                            '<td><input class="ml-6" type="radio" name="radio" value="'+homework.homework_key+'" data-study-key="' + homework.study_key + '"></td>' +
+    	                            '<td class="py-4 px-6">' + homework.homework_name + '</td>' +
+    	                            '<td class="py-4 px-6">' + homework.homework_content + '</td>' +
+    	                            '<td class="py-4 px-6 homework-level">' + homework.homework_level + '</td>' +
+    	                            '<td class="py-4 px-6 study-name">' + homework.study_name + '</td>' +
+    	                            '<td class="py-4 px-6">' + homework.homework_date + '</td>' +
+    	                            '</tr>';
+    	                        tbody1.innerHTML += row;
+    	                    }
+    	                }
+    	            }
+
+    	            // 페이지 번호 생성
+    	            function setupPagination() {
+    	                var pagination1 = document.getElementById('pagination1');
+    	                pagination1.innerHTML = '';
+
+    	                var totalPages = Math.ceil(homeworkList.length / rowsPerPage);
+    	                for (var i = 1; i <= totalPages; i++) {
+    	                    var pageLink1 = document.createElement('a');
+    	                    pageLink1.href = '/page'+i;
+    	                    pageLink1.textContent = i;
+    	                    pageLink1.className = 'px-3 py-1 mx-1 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-300';
+    	                    pageLink1.onclick = function() {
+    	                        currentPage = parseInt(this.textContent) - 1;
+    	                        var start = currentPage * rowsPerPage;
+    	                        var end = start + rowsPerPage;
+    	                        displayRows(start, end);
+    	                        studentList();
+    	                        return false; // 기본 동작(페이지 이동) 막음
+    	                    };
+    	                    pagination1.appendChild(pageLink1);
+    	                }
+    	            }
+
+    	            // 초기 호출
+    	            setupPagination();
+    	            displayRows(0, rowsPerPage);
+    	            
+    	         	// 라디오 버튼 변경 시 이벤트 리스너 등록
+    	            var radios = document.getElementsByName("radio");
+    	            radios.forEach(function(radio) {
+    	                radio.addEventListener("change", function() {
+    	                	// 선택된 라디오 버튼의 부모 요소인 <tr>을 찾음
+    	                    var selectedRow = this.closest('tr');
+    	                    // var selectedHomeworkLevel = this.value; // 선택된 숙제의 레벨 가져오기
+    	                    var homeworkLevel = selectedRow.querySelector('.homework-level').textContent;
+    	                    var hStudyKey = radio.dataset.studyKey;
+    	                    console.log(homeworkLevel, hStudyKey);
+    	                    disableCheckboxes(homeworkLevel, hStudyKey); // 비활성화할 체크박스 처리
+    	                    
+    	                 	// 체크박스 버튼 해제
+    	                    var selectedCheckBox = document.querySelector('input[type="checkbox"]:checked');
+    	                    if (selectedCheckBox) {
+    	                    	selectedCheckBox.checked = false;
+    	                    }
+    	                });
+    	            });
+    	            
+    	        } else {
+    	            console.error('Request failed. Status: ' + xhr.status);
+    	        }
+    	    };
+
+    	    xhr.send(formData);
+    	    
+    	 	// 체크박스 버튼 해제
+            var selectedCheckBox = document.querySelector('input[type="checkbox"]:checked');
+            if (selectedCheckBox) {
+            	selectedCheckBox.checked = false;
+            }
+    	    
+    	}
+    	
+    	
+
+    	function disableCheckboxes(homeworkLevel, hStudyKey) {
+    	    var checkboxes = document.querySelectorAll("#tbody2 input[type=checkbox]");
+    	    checkboxes.forEach(function(checkbox) {
+    	        var studentLevel = parseInt(checkbox.dataset.studentLevel);
+    	        var studyKey = checkbox.dataset.studyKey;
+    	        checkbox.disabled = (studentLevel >= homeworkLevel) || (hStudyKey != studyKey);
+    	    });
+    	}
+    	
+    	function selectAllCheckboxes() {
+    	    var checkboxes = document.querySelectorAll("#tbody2 input[type=checkbox]:not(:disabled)");
+    	    checkboxes.forEach(function(checkbox) {
+    	        checkbox.checked = true;
+    	    });
+    	}
+    	
+    	// 체크된 학생들에게 숙제를 전송
+    	function sendHomework() {
+    		var selectedRadio = document.querySelector('input[name="radio"]:checked');
+    	    var selectedCheckboxes = document.querySelectorAll('#tbody2 input[type="checkbox"]:checked');
+    	    var radioValue = selectedRadio ? selectedRadio.value : null;
+    	    var checkboxValues = Array.from(selectedCheckboxes).map(function(checkbox) {
+    	        return checkbox.value;
+    	    });
+    	    console.log('radioValue: '+radioValue+', checkboxValues: '+checkboxValues);
+    	    
+    	    if(!selectedRadio || selectedCheckboxes.length === 0) {
+    	    	alert('전송할 숙제와 학생을 제대로 체크하세요!');
+    	    	return;
+    	    }
+    	    
+    	    var data = {
+    	            radioValue: radioValue,
+    	            checkboxValues: checkboxValues
+    	        };
+    	    
+    	 // AJAX 요청 보내기
+    	    var xhr = new XMLHttpRequest();
+    	    xhr.open('POST', '/sendHomework', true);
+    	    xhr.setRequestHeader('Content-Type', 'application/json');
+    	    xhr.onload = function() {
+    	        if (xhr.status === 200) {
+    	            // 요청이 성공적으로 처리되었을 때 수행할 작업
+    	            if(xhr.responseText == 'success'){
+    	            	console.log('Homework sent successfully.');
+        	            alert('숙제가 전송되었습니다!!');
+    	            } else
+    	            	alert('이미 전송한 학생입니다');
+    	            
+    	        } else {
+    	            // 요청이 실패했을 때 수행할 작업
+    	            alert('서버에러');
+    	            console.error('Homework sending failed. Status:', xhr.status);
+    	        }
+    	    };
+    	    xhr.send(JSON.stringify(data));
+    	    
+    	    
+    	}
+    	
+    	
+   </script>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

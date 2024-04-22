@@ -1,0 +1,54 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+</head>
+<body>
+	<!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+   
+	<div class="bg-blue-100 p-6 max-w-5xl mx-auto rounded-lg" th:each="member : ${MemberDetail}">
+		<div class="flex justify-between items-center mb-4">
+           	<div class="text-lg font-semibold">회원 정보</div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">성명</label>
+            <input type="text" class="w-full border-2 p-2 rounded" th:value="${member.member_name}" readonly>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">생년월일</label>
+            <input type="text" class="w-full border-2 p-2 rounded" th:value="${member.member_birth_formatted}" readonly>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">자격</label>
+            <input type="text" class="w-full border-2 p-2 rounded" th:value="${member.member_isfree == 0 ? '무료회원' : '유료회원'}" readonly>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">연락처</label>
+            <input type="text" class="w-full border-2 p-2 rounded" th:value="${member.member_tel_formatted}" readonly>
+        </div>  
+        <div>
+            <label class="block text-sm font-medium mb-1">구매건수</label>
+            <input type="text" class="w-full border-2 p-2 rounded" th:value="${member.payment_count == 0 ? '없음' : member.payment_count}" readonly>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">이메일</label>
+            <input type="text" class="w-full border-2 p-2 rounded" th:value="${member.member_email}" readonly>
+        </div>
+        <div class="text-center mt-4">
+            <button class="bg-blue-500 text-white px-4 py-2" onclick="check()">확인</button>
+        </div>                      
+	</div>
+
+<script type="text/javascript">
+	function check() {
+	   window.history.back();
+	}   
+</script>
+
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

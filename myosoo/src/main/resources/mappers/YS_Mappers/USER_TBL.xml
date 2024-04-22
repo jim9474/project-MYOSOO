@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oracle.team2.ysMapper">
+	<select id="ysGetSelectBoxList" parameterType="int" resultType="Game1">
+        SELECT g.game_name,g.game_key,m.member_key,p.member_key
+		FROM game g,payment p, member m
+		where g.game_key = p.game_key and p.member_key = m.member_key
+		and m.member_key = #{member_key}
+	</select>
+	
+<select id="ysGetSelectListDetail" parameterType="int" resultType="Game1">
+
+		    SELECT m.member_key,
+		    	   g.game_key,
+				   g.game_name,
+				   TO_CHAR(g.game_startdate, 'YYYY-MM-DD') || ' ~ ' || TO_CHAR(g.game_enddate, 'YYYY-MM-DD') as totaldate,
+		           g.game_submonth,
+				   (g.game_subpercount * g.game_submonth) as mm,
+				   g.game_subpercount,
+				   (SELECT COUNT(student.member_key)
+		            FROM student
+		            JOIN study ON student.study_key = study.study_key
+		            JOIN member ON member.member_key = study.member_key
+		            WHERE study.game_key = g.game_key
+		            AND student.student_confirm = 1) AS studynum
+		            FROM game g
+		            JOIN 
+		                payment p ON g.game_key = p.game_key
+		            join member m on m.member_key = p.member_key
+		            where m.member_key = #{member_key}
+
+</select>
+
+<select id="ysGetContentNames" parameterType="Game1" resultType="Game1">
+	SELECT g.game_key,p.member_key,
+		   g.game_name,
+		   TO_CHAR(g.game_startdate, 'YYYY-MM-DD') || ' ~ ' || TO_CHAR(g.game_enddate, 'YYYY-MM-DD') as totaldate,
+		   (g.game_subpercount * g.game_submonth) as mm,
+		   g.game_subpercount,
+		   m.*
+		   
+	  FROM game g, member m , payment p
+	 WHERE g.game_key = #{game_key} and p.member_key =#{member_key}
+	 ANd m.member_key = p.member_key and p.game_key = g.game_key
+</select>
+
+<insert id="ysStudyInsert" parameterType="Study2">
+	INSERT INTO 
+		   study(study_key,
+		   		 game_key,
+		   		 member_key,
+		   		 study_month,
+		   		 study_name,
+		   		 study_startdate,
+		   		 study_enddate,
+		   		 study_maxperson,
+		   		 study_maxlevel,
+		   		 study_bigo,
+		   		 study_appperson
+		   		 )
+			VALUES (STUDY_KEY_SEQ.nextval,
+					#{game_key},
+					#{member_key},
+					#{study_month},
+					#{study_name},
+					TO_DATE(#{study_startdate}, 'yyyy-mm-dd'),
+					TO_DATE(#{study_enddate}, 'yyyy-mm-dd'),
+					#{study_maxperson},
+					#{study_maxlevel},
+					#{study_bigo},
+					0
+					)
+</insert>
+
+<select id="ysGetStudyGroupSelect" parameterType="Study2" resultType="Study2">
+	SELECT s.study_key,
+		   s.member_key,
+		   g.game_key,
+		   s.study_name,
+	       g.game_name,
+	       s.study_maxperson,
+	       g.game_startdate || ' ~ ' || g.game_enddate AS totaldate,
+	       s.study_maxlevel,
+	       (select count(*) 
+	       	  from student sd 
+	       	 where sd.study_key = s.study_key 
+	       	   AND sd.student_confirm = 1) AS studynum 
+	FROM study s, game g
+	WHERE s.game_key = g.game_key
+	AND s.member_key = #{member_key}
+</select>
+
+<select id="ysSelectStudyOne" parameterType="Study2" resultType="Study2">
+	SELECT 
+           s.member_key,
+           s.study_name,
+           g.game_key,
+	       g.game_name,
+	       s.study_maxperson,
+	       g.game_startdate || ' ~ ' || g.game_enddate AS totaldate,
+	       s.study_maxlevel,
+	       (select count(*) 
+	       	  from student sd 
+	       	 where sd.study_key = s.study_key 
+	       	   AND sd.student_confirm = 1) AS studynum 
+	FROM study s, game g
+	WHERE s.game_key = g.game_key
+	AND s.member_key = #{member_key} and s.study_key=#{study_key}
+</select>
+
+<update id="ysStudyGroupSelectUpdateAll" parameterType="Study2" >
+		UPDATE   study
+		SET		 study_month = #{study_month},
+		   		 study_name = #{study_name},
+		   		 study_startdate = #{study_startdate},
+		   		 study_enddate = #{study_enddate},
+		   		 study_maxperson = #{study_maxperson},
+		   		 study_maxlevel = #{study_maxlevel},
+		   		 study_bigo = #{study_bigo}
+    	WHERE study_key = #{study_key}
+</update>
+
+<update id="ysStudyGroupSelectUpdate" parameterType="Study2">
+		UPDATE   study
+		   		 study_name = #{study_name}
+    	WHERE study_key = #{study_key}
+</update>
+
+<select id="ysgetUpateName" parameterType="Study2" resultType="Study2">
+    SELECT 
+           s.*,
+	       g.game_name,
+	       TO_CHAR(g.game_startdate, 'YYYY-MM-DD') || ' ~ ' || TO_CHAR(g.game_enddate, 'YYYY-MM-DD') as totaldate,
+           g.game_subpercount,
+           (g.game_subpercount * g.game_submonth) as mm,
+           (select count(*) 
+            from student sd 
+            where sd.study_key = s.study_key 
+            AND sd.student_confirm = 1) AS studynum
+	FROM study s, game g, member m
+	WHERE s.game_key = g.game_key
+	AND s.member_key = m.member_key and s.study_key=#{study_key}
+</select>
+
+<delete id="studyGroupDelete" parameterType="Study2">
+	DELETE FROM study where study_key = #{study_key}
+</delete>
+
+<select id="studyDetailselectBoxList" parameterType="Study2" resultType="Study2">
+	SELECT s.study_name
+      ,s.study_key
+      ,g.game_name
+      ,s.study_startdate ||' ~ '|| s.study_enddate as totaldate
+      ,(select count(*)
+        from student sd
+        where sd.study_key = s.study_key 
+        and sd.student_confirm=1)
+	FROM study s , game g 
+	WHERE s.game_key = g.game_key
+	AND s.member_key =#{member_key}
+		
+</select>
+
+<select id="ysGetStudyGroupOne" parameterType="Study2" resultType="Study2">
+	SELECT g.game_name
+	  ,s.study_key
+      ,g.game_maxlevel
+      ,g.game_subpercount
+      ,s.study_month || '개월' as study_duration  
+      ,(select count(*)
+        from student sd
+        where sd.study_key = s.study_key 
+        and sd.student_confirm=1) as studynum
+	FROM study s,game g
+	WHERE s.game_key = g.game_key
+	AND s.study_key =#{study_key}
+
+</select>
+
+<select id="ysGetTotalCount" parameterType="Student" resultType="int">
+
+	SELECT count(*)
+	FROM student sd
+	WHERE sd.member_key = (SELECT m.member_key 
+						     FROM member m 
+						    WHERE m.member_key =sd.member_key
+						      AND sd.student_confirm = 1)
+	AND sd.study_key = #{study_key}
+
+</select>
+
+
+<select id="ysGetStudyGoupMemberList" parameterType="Student" resultType="Student">
+	SELECT b.*  
+	FROM
+	   (select rownum rn,a.*
+	   from
+		   ( select m.member_name
+		          ,m.member_tel
+		          ,m.member_email
+		          ,student_confirmdate
+		    from student sd , member m 
+		    where m.member_key = sd.member_key
+		    and sd.study_key=#{study_key}
+		    and sd.student_confirm=1
+		    ORDER BY m.member_name ASC)a
+	    
+	    )b
+	WHERE rn between #{start} and #{end}
+</select>
+
+	
+</mapper>

@@ -1,0 +1,322 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+</head>
+<body>
+	<!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+    
+    <div class="bg-blue-100 p-6 max-w-5xl mx-auto rounded-lg">
+               
+        <div class="pt-4">
+ 
+            <div class="flex items-center justify-between my-4">
+                <div class="flex items-center">
+                    <label class="block text-sm font-medium mb-1 " for="period">숙제</label>
+                    <select name="" id="homeworkSelect" class="ml-2">
+                        <option th:value="0"> 전체 </option>
+                        <option th:each="group : ${groupList}" th:text="${group.study_name}" th:value="${group.study_key}"></option>
+                    </select>
+                </div>
+                <div>
+                    <button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="sendHomeworkList()">조회하기</button>
+                    <button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="submitStudentList()">제출 확인</button>
+                </div>
+            </div>
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+                    <tr>
+                        <th scope="col" class="py-3 px-6"></th>
+                        <th scope="col" class="py-3 px-6">숙제명</th>
+                        <th scope="col" class="py-3 px-6">숙제내용</th>
+                        <th scope="col" class="py-3 px-6">레벨</th>
+                        <th scope="col" class="py-3 px-6">학습그룹</th>
+                        <th scope="col" class="py-3 px-6">제출기한</th>
+                        <th scope="col" class="py-3 px-6">전송일자</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody1">
+                </tbody>
+            </table>
+            <div id="pagination1" class="pagination flex justify-center mt-4">
+    		<!-- 페이지 번호가 여기에 들어갈 것입니다. -->
+			</div>
+        </div>
+
+        <div class="border-t-2 pt-4">
+ 
+            <div class="flex items-center justify-between my-4">
+                <div class="flex items-center">
+                    <label class="block text-sm font-medium mb-1 " for="period">제출 내역</label>
+                </div>
+                <div>
+                    <button class="bg-blue-500 text-white px-4 py-1 rounded" onclick="saveGrade()">저장하기</button>
+                </div>
+            </div>
+            <table class="w-full text-sm text-left text-gray-500 ">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+                    <tr>
+                        <th scope="col" class="py-3 px-6">No</th>
+                        <th scope="col" class="py-3 px-6">학습자명</th>
+                        <th scope="col" class="py-3 px-6">숙제제출일자</th>
+                        <th scope="col" class="py-3 px-6">학습 제출 내용</th>
+                        <th scope="col" class="py-3 px-6">추가 질의내용</th>
+                        <th scope="col" class="py-3 px-6">추가 질의답변</th>
+                        <th scope="col" class="py-3 px-6">평가</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody2">
+                </tbody>
+            </table>
+            <div id="pagination2" class="pagination flex justify-center mt-4">
+    		<!-- 페이지 번호가 여기에 들어갈 것입니다. -->
+			</div>
+        </div>
+    </div>
+    
+<script type="text/javascript">
+    function sendHomeworkList() {
+		var homeworkSelect = document.getElementById("homeworkSelect").value;
+	    console.log(homeworkSelect);
+
+	    var formData = new FormData();
+	    formData.append('study_key', homeworkSelect);
+
+	    var xhr = new XMLHttpRequest();
+	    xhr.open('POST', '/sendHomeworkList', true);
+	    xhr.onload = function() {
+	        if (xhr.status === 200) {
+	        	if(xhr.responseText) {
+	        		var sendHomeworkList = JSON.parse(xhr.responseText);
+		            var tbody1 = document.getElementById("tbody1");
+		            tbody1.innerHTML = '';
+
+		            // 한 페이지에 보여질 행의 수
+		            var rowsPerPage = 3;
+		            var currentPage = 0;
+
+		            // 페이징 처리
+		            function displayRows(start, end) {
+		                tbody1.innerHTML = '';
+		                for (var i = start; i < end; i++) {
+		                    if (sendHomeworkList[i]) {
+		                        var homework = sendHomeworkList[i];
+		                        var row = '<tr class="bg-white border-b">' +
+		                            '<td><input class="ml-6" type="radio" name="radio" value="'+homework.homework_key+'" data-homework-level="' + homework.homework_level + '" data-study-key="' + homework.study_key + '"></td>' +
+		                            '<td class="py-4 px-6">' + homework.homework_name + '</td>' +
+		                            '<td class="py-4 px-6">' + homework.homework_content + '</td>' +
+		                            '<td class="py-4 px-6 homework-level">' + homework.homework_level + '</td>' +
+		                            '<td class="py-4 px-6 study-name">' + homework.study_name + '</td>' +
+		                            '<td class="py-4 px-6">' + homework.homework_date + '</td>' +
+		                            '<td class="py-4 px-6">' + homework.formatted_senddate + '</td>' +
+		                            '</tr>';
+		                        tbody1.innerHTML += row;
+		                    }
+		                }
+		            }
+
+		            // 페이지 번호 생성
+		            function setupPagination() {
+		                var pagination1 = document.getElementById('pagination1');
+		                pagination1.innerHTML = '';
+
+		                var totalPages = Math.ceil(sendHomeworkList.length / rowsPerPage);
+		                for (var i = 1; i <= totalPages; i++) {
+		                    var pageLink1 = document.createElement('a');
+		                    pageLink1.href = '/page'+i;
+		                    pageLink1.textContent = i;
+		                    pageLink1.className = 'px-3 py-1 mx-1 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-300';
+		                    pageLink1.onclick = function() {
+		                        currentPage = parseInt(this.textContent) - 1;
+		                        var start = currentPage * rowsPerPage;
+		                        var end = start + rowsPerPage;
+		                        displayRows(start, end);
+		                        return false; // 기본 동작(페이지 이동) 막음
+		                    };
+		                    pagination1.appendChild(pageLink1);
+		                }
+		            }
+
+		            // 초기 호출
+		            setupPagination();
+		            displayRows(0, rowsPerPage);
+	        	} else {
+	        		alert('전송한 숙제가 없습니다');
+	        		var tbody1 = document.getElementById("tbody1");
+	        		tbody1.innerHTML = '';
+	        		var pagination1 = document.getElementById('pagination1');
+	                pagination1.innerHTML = '';
+	        	}
+	            
+	            
+	        } else {
+	            console.error('Request failed. Status: ' + xhr.status);
+	        }
+	    };
+
+	    xhr.send(formData);
+	}
+    
+    function submitStudentList() {
+    	var radio = document.querySelector('input[name="radio"]:checked');
+    	
+    	if(!radio) {
+    		alert('숙제를 체크해주세요');
+    		return;
+    	}
+    	var radioValue = radio.value;
+    	
+    	var formData = new FormData()
+    	formData.append('homework_key', radioValue);
+    	
+    	var xhr = new XMLHttpRequest();
+    	xhr.open('POST', '/submitStudentList', true);
+    	xhr.onload = function() {
+    		if(xhr.status === 200) {
+    			if(xhr.responseText) {
+    			var submitStudentList = JSON.parse(xhr.responseText);
+	            var tbody2 = document.getElementById("tbody2");
+	            tbody2.innerHTML = '';
+
+	            // 한 페이지에 보여질 행의 수
+	            var rowsPerPage = 3;
+	            var currentPage = 0;
+
+	            // 페이징 처리
+	            function displayRows(start, end) {
+	                tbody2.innerHTML = '';
+	                for (var i = start; i < end; i++) {
+	                    if (submitStudentList[i]) {
+	                        var studentList = submitStudentList[i];
+	                        var row = '<tr class="bg-white border-b">' +
+	                            '<td class="py-4 px-6">' + 
+	                            	'<input type="checkbox" name="check" class="ml-6" value="'+studentList.homework_key+'" data-member-key="'+studentList.member_key+'">' + 
+	                            '</td>' +
+	                            '<td class="py-4 px-6">' + studentList.member_name + '</td>' +
+	                            '<td class="py-4 px-6">' + studentList.deployment_date + '</td>' +
+	                            '<td class="py-4 px-6">' + studentList.deployment_content + '</td>' +
+	                            '<td class="py-4 px-6">' + studentList.deployment_question + '</td>' +
+	                            '<td class="py-4 px-6">' + 
+	                            	'<input id="deployment_answer" type="text" class="p-1 border border-gray-300 rounded" value="'+studentList.deployment_answer+'">' +
+	                            	'</input>'+
+	                            '</td>' +
+	                            '<td class="py-4 px-6">' +
+	                            	'<select id="grade">' +
+	                                	'<option value="'+0+'">미흡</option>' +
+	                                	'<option value="'+1+'">보통</option>' +
+	                                	'<option value="'+2+'">우수</option>' +
+	                            	'</select>' +
+	                        	'</td>' +
+	                            '</tr>';
+	                        tbody2.innerHTML += row;
+	                    }
+	                }
+	            }
+
+	            // 페이지 번호 생성
+	            function setupPagination() {
+	                var pagination2 = document.getElementById('pagination2');
+	                pagination2.innerHTML = '';
+
+	                var totalPages = Math.ceil(submitStudentList.length / rowsPerPage);
+	                for (var i = 1; i <= totalPages; i++) {
+	                    var pageLink2 = document.createElement('a');
+	                    pageLink2.href = '/page'+i;
+	                    pageLink2.textContent = i;
+	                    pageLink2.className = 'px-3 py-1 mx-1 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-300';
+	                    pageLink2.onclick = function() {
+	                        currentPage = parseInt(this.textContent) - 1;
+	                        var start = currentPage * rowsPerPage;
+	                        var end = start + rowsPerPage;
+	                        displayRows(start, end);
+	                        return false; // 기본 동작(페이지 이동) 막음
+	                    };
+	                    pagination2.appendChild(pageLink2);
+	                }
+	            }
+
+	            // 초기 호출
+	            setupPagination();
+	            displayRows(0, rowsPerPage);
+	            
+    		} else {
+    			alert('제출한 학생이 없습니다.');
+    			var tbody2 = document.getElementById("tbody2");
+    			tbody2.innerHTML = '';
+    			var pagination2 = document.getElementById('pagination2');
+                pagination2.innerHTML = '';
+    		}
+    		} else {
+	            console.error('Request failed. Status: ' + xhr.status);
+	        }
+    		
+    	};
+    	xhr.send(formData);
+    }
+    
+    // 성적 저장
+    function saveGrade() {
+    	// 체크된 체크박스 엘리먼트들을 선택합니다.
+        var checkboxes = document.querySelectorAll('input[type="checkbox"][name="check"]:checked');
+        var radio1 = document.querySelector('input[type="radio"]:checked').getAttribute('data-homework-level');
+        var radio2 = document.querySelector('input[type="radio"]:checked').getAttribute('data-study-key');
+     	// 체크된 각 항목에 대해 데이터를 추출하고 배열에 저장합니다.
+        var dataToSave = [];
+        checkboxes.forEach(function(checkbox) {
+            var homeworkKey = checkbox.value; // homework_key
+            var memberKey = checkbox.getAttribute('data-member-key'); // member_key
+            var deploymentAnswer = checkbox.parentElement.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.querySelector('input#deployment_answer').value; // 인풋칸에 입력된 텍스트
+            var grade = checkbox.parentElement.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.querySelector('select#grade').value; // select의 값
+
+            // 데이터를 객체로 묶어 배열에 추가합니다.
+            dataToSave.push({
+                homework_key: homeworkKey,
+                member_key: memberKey,
+                deployment_answer: deploymentAnswer,
+                deployment_grade: grade,
+                homework_level: radio1,
+                study_key: radio2
+            });
+        });
+		console.log(dataToSave);
+        // 만약 체크된 데이터가 없다면 함수 종료
+        if (dataToSave.length === 0) {
+        	alert('체크된 학생이 없습니다.');
+            console.log("No data selected to save.");
+            return;
+        }
+    	
+     	// 데이터를 JSON 형식으로 변환합니다.
+        var jsonData = JSON.stringify(dataToSave);
+        
+     	var xhr = new XMLHttpRequest();
+     	xhr.open('POST', '/saveGrade', true);
+     	xhr.setRequestHeader('Content-Type', 'application/json');
+     	xhr.onload = function() {
+     		if(xhr.status === 200) {
+     			alert('성적 입력 완료!');
+     			console.log('성적 저장 성공');
+     			window.location.href = 'homeworkGrade';
+     		} else {
+     			console.log('서버 에러');
+     		}
+     	};
+     	xhr.onerror = function() {
+     		console.log('XML 에러');
+     	};
+     	xhr.send(jsonData);
+    }
+    
+    
+    
+    
+</script>
+    
+    
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

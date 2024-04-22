@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+	integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+	crossorigin="anonymous"></script>
+
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>결제 페이지</title>
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+
+<style>
+.form-container {
+	max-width: 400px;
+	margin: 0 auto;
+	margin-top: 100px;
+	padding: 20px;
+	border-radius: 8px;
+	background-color: #ffffff;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+	border-bottom: 2px solid #059669;
+	padding-bottom: 15px;
+	margin-bottom: 20px;
+}
+
+.form-title {
+	font-size: 1.8rem;
+	color: #059669;
+	font-weight: 700;
+	text-align: center;
+	margin: 0;
+}
+
+.form-section {
+	margin-bottom: 20px;
+	background-color: #f9f9f9;
+	padding: 15px;
+	border-radius: 8px;
+}
+
+.form-section h3 {
+	font-size: 1.2rem;
+	color: #333333;
+	font-weight: 600;
+	margin-top: 0;
+}
+
+.form-section p {
+	margin: 5px 0;
+}
+
+.form-btn {
+	background-color: #059669;
+	color: #ffffff;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	display: block;
+	width: 100%;
+	font-size: 1rem;
+	font-weight: 600;
+	transition: background-color 0.3s ease;
+}
+
+.form-btn:hover {
+	background-color: #047857;
+}
+</style>
+</head>
+<body>
+	<!-- header -->
+	<th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+	<div class="form-container">
+		<div class="form-header">
+			<h2 class="form-title">결제 방법 선택</h2>
+		</div>
+		<div class="form-section">
+			<h3>주문 정보</h3>
+			<p>
+				<strong>구매자명:</strong> <span id="buyerName"
+					th:text="${member != null ? member.member_name : ''}"></span>
+			</p>
+			<p>
+				<strong>연락처:</strong> <span id="contact"
+					th:text="${member != null ? member.member_tel : ''}"></span>
+			</p>
+				<input type="hidden" id="member_mikey" name="member_mikey" th:value="${member_mikey}">
+
+
+			<!-- 총 결제 금액 표시 -->
+			<p>
+				<strong>주문합계:</strong> <span id="totalPrice">0</span> 원
+			</p>
+
+		</div>
+		<form id="paymentForm" method="post">
+			<div class="form-section">
+				<h3>결제 방법 선택</h3>
+				<div class="flex items-center mb-4">
+					<input type="radio" id="kakaoPay" name="payment_method" value="0">
+					<label for="kakaoPay" class="ml-2">카카오페이</label>
+				</div>
+				<div class="flex items-center mb-4">
+					<input type="radio" id="accountTransfer" name="payment_method"
+						value="1"> <label for="accountTransfer" class="ml-2">계좌
+						이체</label>
+				</div>
+				<div class="flex items-center mb-4">
+					<input type="radio" id="bankTransfer" name="payment_method"
+						value="2"> <label for="bankTransfer" class="ml-2">무통장
+						입금</label>
+				</div>
+			</div>
+			<div id="paymentDetails" style="display: none;" class="form-section">
+				<h3>입금자 정보</h3>
+				<label for="payerName">입금자명</label> <input type="text"
+					id="payerName" name="payerName" class="form-input"
+					placeholder="입금자명을 입력하세요">
+			</div>
+			<button type="button" id="pay" class="form-btn">결제 하기</button>
+		</form>
+	</div>
+	<script>
+
+	const paymentForm = document.getElementById('paymentForm');
+	const paymentDetails = document.getElementById('paymentDetails');
+	let paymentMethod; // 선택된 결제 방법을 저장할 변수
+
+	const kakaoPay = document.getElementById('kakaoPay');
+	const accountTransfer = document.getElementById('accountTransfer');
+	const bankTransfer = document.getElementById('bankTransfer');
+
+	// 각 라디오 버튼의 변경 이벤트 처리
+	kakaoPay.addEventListener('change', function () {
+	    if (this.checked) {
+	        paymentDetails.style.display = 'none';
+	        paymentMethod = this.value; // 카카오페이 선택 시 value 값을 저장
+	    }
+	});
+
+	accountTransfer.addEventListener('change', function () {
+	    if (this.checked) {
+	        paymentDetails.style.display = 'none';
+	        paymentMethod = this.value; // 계좌이체 선택 시 value 값을 저장
+	    }
+	});
+
+	bankTransfer.addEventListener('change', function () {
+	    if (this.checked) {
+	        paymentDetails.style.display = 'block';
+	        paymentMethod = this.value; // 무통장입금 선택 시 value 값을 저장
+	    } else {
+	        paymentDetails.style.display = 'none';
+	    }
+	});
+
+	// 결제 버튼 클릭 이벤트 처리
+	const payButton = document.getElementById('pay');
+	payButton.addEventListener('click', function (event) {
+	    event.preventDefault(); // 폼 전송 방지
+
+	    // 선택된 결제 방법 확인
+	    const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+
+	    // 결제 방법이 선택되지 않은 경우 알림창 표시하고 함수 종료
+	    if (!paymentMethod) {
+	        alert('결제 방법을 선택해주세요.');
+	        return;
+	    }
+
+	    // 선택된 결제 방법 값 가져오기
+	    const selectedPaymentMethod = paymentMethod.value;
+	    const payerName = document.getElementById('payerName').value;
+	    const gameKeys = getGameKeysFromURL(); // 게임 키 배열 가져오기
+	    
+	    const memberMikey = document.getElementById('member_mikey').value;
+	    console.log('member_mikey:', memberMikey);
+	    
+
+	    // 수정된 부분: 게임 키 배열과 선택된 결제 방법을 전달
+	    getGamePriceAndSendData(gameKeys, selectedPaymentMethod,memberMikey);
+	});
+	
+	//게임 키를 가져오는 함수
+	function getGameKeysFromURL() {
+
+	    return gameKeys;
+	} 
+
+
+
+	
+	// 게임 가격을 가져오고 서버로 데이터를 전송하는 함수
+$(document).ready(function() {
+    // Check if 'alert' parameter exists in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const alertMessage = urlParams.get('alert');
+    if (alertMessage === 'insufficient_permission') {
+        // Display alert message for insufficient permission
+        alert('권한이 부족합니다.');
+    }
+    
+    // 게임 키를 가져와서 콘솔에 출력
+    const gameKeys = getGameKeysFromURL();
+    console.log('게임 키:', gameKeys);
+    
+    // 전달할 member_isfree 값
+    const memberIsFree = 1;
+
+    // URL 파라미터에 member_isfree 값을 추가
+    urlParams.set('member_isfree', memberIsFree);
+    
+    // 변경된 URL을 다시 설정
+    const newUrl = window.location.pathname + '?' + urlParams.toString();
+    window.history.pushState({}, '', newUrl);
+    
+    
+    
+    
+  
+
+});
+	function getGamePriceAndSendData(gameKeys, selectedPaymentMethod, memberMikey) { // gameKeys 배열을 받도록 수정
+		console.log('게임키들'+gameKeys);
+	    gameKeys.forEach(gameKey => {
+	        $.ajax({
+	            url: '/getGamePrices?gameKey=' + gameKey,
+	            type: 'POST',
+	            contentType: 'application/json',
+	            success: function(data) {
+	                console.log('게임 가격:', data);
+	                console.log('결제방법: ', selectedPaymentMethod);
+	                var jsonData = JSON.parse(data);
+	                // 데이터가 정상적으로 수신되면 서버로 결제 정보를 전송
+	                sendDataToServer(selectedPaymentMethod, gameKey, jsonData, memberMikey);
+	            },
+	            error: function(jqXHR, textStatus, errorThrown) {
+	                console.error('게임 가격 조회 오류:', errorThrown);
+	                alert('게임 가격을 가져오는 데 문제가 발생했습니다.');
+	            }
+	        });
+	    });
+	}
+
+
+
+	function sendDataToServer(paymentMethod, gameKey, gamePrices, memberMikey) {
+	    // AJAX 요청을 통해 서버로 데이터 전송
+	    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~>", memberMikey);
+	    let discountedPrices = gamePrices.map(price => {
+	        if (parseInt(memberMikey) === 30) { // memberMikey를 정수로 변환하여 비교
+	            // mikey 값이 30인 경우에만 10% 할인 적용
+	            return price * 0.9;
+	        } else {
+	            // mikey 값이 30이 아닌 경우에는 할인을 적용하지 않음
+	            return price;
+	        }
+	    });
+	    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~>", discountedPrices);
+	        
+	    $.ajax({
+	        url: '/payment',
+	        type: 'POST',
+	        contentType: 'application/json',
+	        data: JSON.stringify({ paymentMethod: paymentMethod, gameKey: gameKey, paymentPrices: discountedPrices }),
+	        success: function(data) {
+	            console.log('서버로부터 받은 데이터:', data);
+	            alert('결제가 완료되었습니다!');
+	            
+	            // 결제가 성공한 경우 추가 작업 수행
+	            handleSuccessfulPayment();
+	        },
+	        error: function(jqXHR, textStatus, errorThrown) {
+	            console.error('AJAX 요청에 문제가 있습니다:', errorThrown);
+	            alert('구매내역이 있어 구매 불가합니다.');
+	        }
+	    });
+	}
+
+ // 결제가 성공한 경우 실행할 추가 작업 함수
+    function handleSuccessfulPayment() {
+    	 $.ajax({
+             url: '/memberFreeupdate',
+             type: 'POST',
+             contentType: 'application/json',
+             data: JSON.stringify({ member_isfree : 1}), // member 객체는 어디서 가져오는지 확인 필요
+             success: function(response) {
+                 console.log('회원 정보 업데이트 완료:', response);
+             },
+             error: function(jqXHR, textStatus, errorThrown) {
+                 console.error('회원 정보 업데이트 실패:', errorThrown);
+             }
+         });
+
+         window.location.href = '/purchaseHistoryView';
+     }
+
+
+
+//총 결제 금액 및 각 게임의 가격을 가져와서 페이지에 출력
+const urlParams = new URLSearchParams(window.location.search);
+const totalPrice = urlParams.get('totalPrice');
+const productNames = JSON.parse(decodeURIComponent(urlParams.get('productNames')));
+const gameKeys = urlParams.get('gameKey').split(',');
+const gamePrices = JSON.parse(decodeURIComponent(urlParams.get('gamePrices')));
+
+//쉼표를 포함한 숫자 문자열로 변환하는 함수
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// 주문합계 표시 엘리먼트 가져오기
+const totalPriceElement = document.getElementById('totalPrice');
+
+// totalPrice 변수에 저장된 숫자를 쉼표가 포함된 문자열로 변환하여 표시
+if (totalPrice !== null) {
+    totalPriceElement.innerText = numberWithCommas(totalPrice);
+}
+
+if (productNames.length > 0) {
+    const orderInfoContainer = document.querySelector('.form-container .form-section:nth-child(2)');
+    if(orderInfoContainer !== null) { // 부모 요소가 존재하는지 확인
+        const productNameHeading = document.createElement('h3');
+        productNameHeading.textContent = '선택한 상품명';
+        orderInfoContainer.appendChild(productNameHeading);
+
+        const productNameList = document.createElement('ul');
+        productNames.forEach(function(productName) {
+            const productNameItem = document.createElement('li');
+            // 수정된 부분: 게임 내용 대신 게임 이름으로 표시
+            productNameItem.textContent = productName;
+            productNameList.appendChild(productNameItem);
+        });
+
+        orderInfoContainer.appendChild(productNameList);
+    }
+}
+
+//선택한 상품의 game_key와 가격을 화면에 출력
+if (gameKeys.length > 0) {
+    const gameKeysContainer = document.querySelector('.form-section:nth-child(3)');
+    if(gameKeysContainer !== null) { // 부모 요소가 존재하는지 확인
+        const gameKeyHeading = document.createElement('h3');
+        gameKeyHeading.textContent = '선택한 게임 정보';
+        gameKeysContainer.appendChild(gameKeyHeading);
+
+        const gameInfoList = document.createElement('ul');
+        for (let i = 0; i < gameKeys.length; i++) {
+            const gameInfoItem = document.createElement('li');
+            // 수정된 부분: 게임 이름과 가격으로 표시
+            gameInfoItem.textContent = '게임 이름: ' + productNames[i] + ', 가격: ' + gamePrices[i] + '원';
+            gameInfoList.appendChild(gameInfoItem);
+
+            // 수정된 부분: 게임 가격을 콘솔에 출력
+            console.log('게임 이름:', productNames[i]);
+            console.log('게임 가격:', gamePrices[i]);
+        }
+
+        gameKeysContainer.appendChild(gameInfoList);
+    }
+}
+
+//연락처 형식 변경
+const contactElement = document.getElementById('contact');
+if (contactElement) {
+    const contactNumber = contactElement.innerText;
+    const formattedContact = formatPhoneNumber(contactNumber);
+    contactElement.innerText = formattedContact;
+}
+
+// 연락처 형식 변환 함수
+function formatPhoneNumber(phoneNumber) {
+    // 연락처 형식: 010-0000-0000
+    const formattedPhoneNumber = phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+    return formattedPhoneNumber;
+}
+
+</script>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

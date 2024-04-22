@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>메인화면</title>
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+   th:src="@{js/jquery-3.7.1.min.js}"></script>
+
+<style>
+body {
+   font-family: 'Noto Sans KR', sans-serif;
+}
+</style>
+
+
+</head>
+
+<body class="bg-blue-100">
+   <!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+
+   <div class="container mx-auto p-4">
+      <div class="bg-white rounded-lg shadow-lg p-5">
+
+         <div class="flex mt-4">
+
+            <div class="w-full pl-4">
+               <div
+                  class="grid grid-cols-3 gap-4 flex items-center justify-center">
+                  <div > <h2>바둑 교육</h2>
+                     <a href="https://textbookmedia.gimmyoung.com/baduk/"
+                        class="flex items-center space-x-3 rtl:space-x-reverse"> <img
+                        src="img/badukchamgo.png" class="rounded-lg" alt="badukchamgo" />
+                     </a> <a href="https://www.youtube.com/@user-gh5cq5wn7s"
+                        class="flex items-center space-x-3 rtl:space-x-reverse mt-3">
+                        <img src="img/badukstudy.png" class="rounded-lg"
+                        alt="badukstudy" />
+                     </a>
+                  </div>
+                  <div>
+                  <h2>바둑 게임</h2>
+                     <a href="https://www.cosumi.net/ko/"
+                        class="flex items-center space-x-3 rtl:space-x-reverse mt-1">
+                        <img src="img/cosumiAi.png" class="rounded-lg" alt="cosumiAi" />
+                     </a>
+                  </div>
+                  <div>
+                  <h2>바둑 관련 유튜브</h2>
+                     <div class="flex items-center justify-center rounded-lg border-2 gap-4">
+                        <a href="https://www.youtube.com/@baduk1"
+                           class="flex items-center space-x-3 rtl:space-x-reverse my-2">
+                           <img src="img/badukyou2.png" class="rounded-lg" alt="badukyou2" />
+                        </a> <a href="https://www.youtube.com/@TheMylove1244"
+                           class="flex items-center space-x-3 rtl:space-x-reverse my-2">
+                           <img src="img/badukyou3.png" class="rounded-lg" alt="badukyou3" />
+                        </a>
+                     </div>
+                     <div class="video-container ml-2 mt-3">
+                        <iframe width="450" height="225"
+                           src="https://www.youtube.com/embed/hUR0ezNT9DE?si=maAcGf9dZOkhwTr2"
+                           title="YouTube video player" frameborder="0"
+                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                           referrerpolicy="strict-origin-when-cross-origin"
+                           allowfullscreen></iframe>
+                     </div>
+
+                  </div>
+
+
+               </div>
+
+               <div class="flex justify-between items-center mt-4"></div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!-- footer -->
+   <div class="footer mt-auto">
+      <th:block th:replace="~{fragments/footer::footerFragment}"></th:block>
+   </div>
+</body>
+
+</html>

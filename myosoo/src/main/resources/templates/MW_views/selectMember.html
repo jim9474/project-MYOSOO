@@ -1,0 +1,249 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+</head>
+<body>
+	<!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+   
+   
+    <div class="max-w-5xl mx-auto py-5">
+        <div class="bg-white p-5 shadow rounded">
+        	<h3>회원목록</h3>
+            <div class="flex justify-between mb-4">
+                <div>
+                	<label>기간</label>&nbsp;&nbsp;&nbsp;
+                    <input id="start" type="date" class="border p-1" placeholder="기간 검색"><span>&nbsp; ~ </span>
+                    <input id="end" type="date" class="border p-1 ml-2" placeholder="조건 검색">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label>구분</label>&nbsp;&nbsp;&nbsp;
+                <select id="mikey" class="border p-1 ml-2">
+                    <option value=0>전체</option>
+                    <option value=10>교육자</option>
+                    <option value=20>학습자</option>
+                    <option value=30>일반인</option>
+                    <option value=40>운영자</option>
+                </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <label>자격</label>&nbsp;&nbsp;&nbsp;
+                <select id="isfree" class="border p-1 ml-2">
+                    <option value=2>전체</option>
+                    <option value=0>무료</option>
+                    <option value=1>유료</option>
+                </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <label>조건</label>&nbsp;&nbsp;&nbsp;
+                <select id="option" class="border p-1">
+                    <option value=0>전체</option>
+                    <option value=1>아이디</option>
+                    <option value=2>연락처</option>
+                    <option value=3>이름</option>
+                </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="text" id="searchInput" class="border p-1 ml-2" placeholder="검색어를 입력하세요">
+                <button class="bg-green-500 text-white px-4 py-1 rounded" onclick="search()">검색</button>
+            </div>
+            <div id="totalCount">
+				
+            </div>
+            <table class="w-full text-center border-collapse">
+                <thead>
+                    <tr class="border-t border-b border-red-500">
+                        <th class="p-3">No</th>
+                        <th>구분</th>
+                        <th>성명</th>
+                        <th>아이디</th>
+                        <th>연락처</th>
+                        <th>이메일</th>
+                        <th>자격</th>
+                        <th>가입일자</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody1">
+                    <tr class="border-b" th:each="memberList : ${memberList}">
+                        <td class="p-3" th:text="${memberList.rn}"></td>
+                        <td th:switch="${memberList.member_mikey}">
+    						<p th:case="10">교육자</p>
+    						<p th:case="20">학습자</p>
+    						<p th:case="30">일반인</p>
+    						<p th:case="40">운영자</p>
+						</td>
+                        <td th:text="${memberList.member_name}"></td>
+                        <td><a th:href="@{/detailMember(memberKey=${memberList.member_key})}" th:text="${memberList.member_id}"></a></td>
+                        <td th:text="${memberList.member_tel}"></td>
+                        <td th:text="${memberList.member_email}"></td>
+                        <td th:text="${memberList.member_isfree == 0 ? '무료회원':'유료회원'}"></td>
+                        <td th:text="${memberList.formatted_regdate}"></td>
+                    </tr>
+                </tbody>
+            </table>
+                        
+        </div>
+        <div id="pagination1" class="pagination flex justify-center mt-4">
+    		<!-- 페이지 번호가 여기에 들어갈 것입니다. -->
+			</div>
+            <!-- paging button -->
+			<!-- <nav aria-label="Page navigation example" class="text-center">
+             <ul class="inline-flex -space-x-px text-sm">
+                <li th:if="${page.startPage > page.pageBlock}">
+                    <a th:href="@{/selectMember(currentPage=${page.startPage - page.pageBlock})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        이전
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(page.startPage, page.endPage)}">
+                    <a th:href="@{/selectMember(currentPage=${i})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        [[${i}]]
+                    </a>
+                </li>
+                <li th:if="${page.endPage < page.totalPage}">
+                    <a th:href="@{/selectMember(currentPage=${page.startPage + page.pageBlock})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        다음
+                    </a>
+                </li>
+            </ul>
+           </nav>   -->      
+    </div>
+    
+<script type="text/javascript">
+	
+	function search() {
+		var startDate = document.getElementById('start').value;
+		var endDate = document.getElementById('end').value;
+		var option = document.getElementById('option').value;
+		var mikey = document.getElementById('mikey').value;
+		var isfree = document.getElementById('isfree').value;
+		var keyword = document.getElementById('searchInput').value;
+		
+		if(!startDate || !endDate) {
+			alert('기간을 선택해주세요!');
+			return;
+		}
+		var formattedStartDate = startDate.replace(/-/g, '');
+		var formattedEndDate = endDate.replace(/-/g, '');
+		
+		
+		console.log(formattedStartDate+'~'+formattedEndDate);
+		console.log(option);
+		console.log(status);
+		console.log(isfree);
+		
+		var data = {
+			startDate: startDate,
+			endDate: endDate,
+			opt: option,
+			mikey: mikey,
+			isfree: isfree,
+			keyword: keyword
+		};
+		console.log(data);
+		
+		var jsonData = JSON.stringify(data);
+		
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', '/search', true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		xhr.onload = function() {
+			if(xhr.status === 200) {
+				if(xhr.responseText) {
+					var searchList = JSON.parse(xhr.responseText);
+					var tbody1 = document.getElementById("tbody1");
+		            tbody1.innerHTML = '';
+		            
+		         	// 한 페이지에 보여질 행의 수
+		            var rowsPerPage = 10;
+		            var currentPage = 0;
+		            
+		            // 페이징 처리
+		            function displayRows(start, end) {
+		                tbody1.innerHTML = '';
+		                for (var i = start; i < end; i++) {
+		                    if (searchList[i]) {
+		                        var member = searchList[i];
+		                        var row = '<tr class="border-b">' +
+		                            '<td class="p-3">' + member.rn + '</td>' +
+		                            '<td>' + 
+		                            	(member.member_mikey === 10 ? '교육자' : 
+		                            	(member.member_mikey === 20 ? '학습자' : 
+		                            	(member.member_mikey === 30 ? '일반인' : 
+		                            	(member.member_mikey === 40 ? '운영자' : '')))) + 
+		                            '</td>' +
+		                            '<td>' + member.member_name + '</td>' +
+		                            '<td>' + 
+		                            	'<a href="/detailMember?memberKey=' + member.member_key +'">' + member.member_id + '</a>' + 
+		                            '</td>' +
+		                            '<td>' + member.member_tel + '</td>' +
+		                            '<td>' + member.member_email + '</td>' +
+		                            '<td>' + 
+		                            	(member.member_isfree === 0 ? '무료회원' : '유료회원') +
+		                            '</td>' +
+		                            '<td>' + member.formatted_regdate + '</td>' +
+		                            '</tr>';
+		                        tbody1.innerHTML += row;
+		                    }
+		                }
+		                setUpTotalCount();
+		            }
+
+		            // 페이지 번호 생성
+		            function setupPagination() {
+		                var pagination1 = document.getElementById('pagination1');
+		                pagination1.innerHTML = '';
+
+		                var totalPages = Math.ceil(searchList.length / rowsPerPage);
+		                for (var i = 1; i <= totalPages; i++) {
+		                    var pageLink1 = document.createElement('a');
+		                    pageLink1.href = '/page'+i;
+		                    pageLink1.textContent = i;
+		                    pageLink1.className = 'px-3 py-1 mx-1 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-300';
+		                    pageLink1.onclick = function() {
+		                        currentPage = parseInt(this.textContent) - 1;
+		                        var start = currentPage * rowsPerPage;
+		                        var end = start + rowsPerPage;
+		                        displayRows(start, end);
+		                        return false; // 기본 동작(페이지 이동) 막음
+		                    };
+		                    pagination1.appendChild(pageLink1);
+		                }
+		            }
+		            
+		            // 총카운터 뽑기
+		            function setUpTotalCount() {
+		            	var totalCount = document.getElementById('totalCount');
+		            	totalCount.innerHTML = '';
+		            	
+		            	var row = '<p> 총 ' + searchList.length + '명 조회되었습니다. </p>';
+		            	totalCount.innerHTML += row;
+		            }
+
+		            // 초기 호출
+		            setupPagination();
+		            displayRows(0, rowsPerPage);
+	        	} else {
+	        		alert('검색데이터가 없습니다!');
+	        	}
+	            
+	            
+	        } else {
+	            console.error('Request failed. Status: ' + xhr.status);
+	        }		            
+		};
+		xhr.onerror = function() {
+			console.log('에이잭스 에러');
+		};
+		xhr.send(jsonData);
+		
+	}
+	
+</script>
+    
+    
+    
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구매내역</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+    <style>
+        /* 추가한 CSS */
+       thead:hover + tbody tr,
+tbody tr:hover {
+    border: 2px solid #4CAF50;
+}
+        table {
+       width: 80%;
+       margin: 0 auto; 
+      }
+      
+        
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+
+    <!-- 구매일자 또는 구독일자 기준 선택하는 드롭다운 추가 -->
+   <div class="flex items-center justify-between pb-6" style="width: 65%; margin: 0 auto;">
+    <div class="flex items-center justify-between" style="width: 50%;">
+        <!-- 드롭다운 추가 -->
+        <div class="flex bg-gray-50 items-center p-2 rounded-md " style="width: 20%;  margin-left: 30px;">
+            <select id="dateTypeDropdown" class="bg-gray-50 outline-none block w-full" onchange="handleDateTypeChange()"> <!-- 변경 감지하여 함수 호출 -->
+                <option value="purchase">구매일자</option>
+                <option value="subscription">구독일자</option>
+            </select>
+        </div>
+        <div class="flex bg-gray-50 items-center p-2  justify-between rounded-md" style="width: 30%; margin-left: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input class="bg-gray-50 outline-none ml-1 block" type="date" id="startDateInput">
+            <span class="mx-1">~</span>
+            <input class="bg-gray-50 outline-none ml-1 block" type="date" id="endDateInput" style="display: none;"> <!-- 숨김 -->
+        </div>
+        <!-- 검색 버튼 -->
+        <div class="lg:ml-40 ml-10 space-x-8" style="width: 30%; margin-right: 200px;  margin-left: 10px; ">
+            <button class="bg-green-600 px-4 py-2 rounded-md text-white font-semibold tracking-wide cursor-pointer" onclick="searchByDate()">조회하기</button>
+        </div>
+    </div>
+</div>   
+<div class="text-gray-700" style="width: 10%; margin-left: 500px;">
+     <span id="totalItemCount" th:text="'총 항목 수: ' + ${totalItemCount} + ' 개'">총 항목 수: 0개</span>
+
+</div>
+
+
+
+<div class="-mx-4 sm:-mx-6 px-4 sm:px-8 py-4 overflow-x-auto" style="width: 65%; margin: 0 auto;">
+    <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+        <table class="leading-normal w-full">
+            <!-- 테이블 헤더 -->
+            <thead>
+                <tr>
+                     <th class="px-5 py-3 w-20 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">No</th>
+               <th class="px-5 py-3 w-100 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">이미지</th>
+               <th class="px-5 py-3 w-100 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">상품명</th>
+               <th class="px-5 py-3 w-100 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">학습그룹 등록내역</th>
+               <th class="px-5 py-3 w-100 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">구매일자</th>
+               <th class="px-5 py-3 w-100 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">가격</th>
+               <th class="px-5 py-3 w-100 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">구독일자</th>
+             </tr>
+                   
+            </thead>
+            <!-- 테이블 내용 -->
+           <tbody>
+    <tr th:each="payment, rowNumber : ${payment}">
+        <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+            <!-- 번호 열 -->
+          <span th:text="${rowNumber.index + 1}"></span>
+        </td>
+        <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+            <div class="flex justify-center">
+        <!-- 상품 이미지 표시 -->
+        <img th:src="'data:image/png;base64,' + ${payment.game_imgEncod}" alt="image" class="w-50 h-20 object-cover rounded">
+    </div>
+        </td>   
+        <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+            <!-- 상품명 표시 -->
+            <p class="text-gray-900 whitespace-no-wrap" th:text="${payment.game_name}">상품명</p>
+        </td>
+        <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+            <!-- 학습그룹 등록내역 표시 -->
+            <p class="text-gray-900 whitespace-no-wrap" th:if="${payment.study_name != null}" th:text="${payment.study_name}" style=" font-weight: bold;">학습그룹 등록내역</p>
+            <p class="text-gray-900 whitespace-no-wrap" th:unless="${payment.study_name != null}">없음</p>
+        </td>
+        <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+            <!-- 구매일자 표시 -->
+            <p class="text-gray-900 whitespace-no-wrap" th:text="${#dates.format(payment.payment_date, 'yyyy.MM.dd')}">2023.10.04</p>
+        </td>
+        <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center payment-price">
+            <!-- 가격 표시 -->
+            <p class="text-gray-900 whitespace-no-wrap" th:text="${payment.payment_price}"></p>
+        </td>
+        <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+            <!-- 구독일자 표시 -->
+            <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+                <span aria-hidden class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
+                <span class="text-gray-900" th:text="${payment.game_startdate != null ? #dates.format(payment.game_startdate, 'yyyy.MM.dd') : ''}">시작</span>
+                <span th:if="${payment.game_enddate != null}" class="relative" th:text="' ~ ' + ${#dates.format(payment.game_enddate, 'yyyy.MM.dd')}">마감</span>
+            </span>
+        </td>
+    </tr>
+</tbody>
+
+        </table>
+    </div>
+</div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('tbody tr');
+           rows.forEach((row, index) => {
+               const rowNumberCell = row.querySelector('td:first-child'); // 각 행의 첫 번째 셀
+               rowNumberCell.textContent = index + 1; // 각 행의 첫 번째 셀에 번호 부여
+           });
+
+    });
+
+
+        function handleDateTypeChange() {
+            const dateType = document.getElementById('dateTypeDropdown').value;
+            const startDateInput = document.getElementById('startDateInput');
+            const endDateInput = document.getElementById('endDateInput');
+
+            // 구매일자 기준이면 endDateInput을 숨기고, 아니면 보이도록 설정
+            if (dateType === 'purchase') {
+                endDateInput.style.display = 'none';
+            } else {
+                endDateInput.style.display = 'block';
+            }
+        }
+        function resetRowNumbers() {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach((row, index) => {
+                const rowNumberCell = row.querySelector('td:first-child'); // 각 행의 첫 번째 셀
+                rowNumberCell.textContent = index + 1; // 각 행의 첫 번째 셀에 번호 부여
+            });
+        }
+
+
+        // 초기화 시 실행
+        handleDateTypeChange();
+        
+        function searchByDate() {
+            const startDateInput = new Date(document.getElementById('startDateInput').value);
+            let endDateInput = document.getElementById('endDateInput').value;
+            const dateType = document.getElementById('dateTypeDropdown').value;
+
+            if (!endDateInput) {
+                endDateInput = new Date();
+            } else {
+                endDateInput = new Date(endDateInput);
+            }
+
+            startDateInput.setHours(0, 0, 0, 0);
+            endDateInput.setHours(23, 59, 59, 999);
+
+            const rows = document.querySelectorAll('tbody tr');
+            let totalCount = 0;
+
+            rows.forEach(row => {
+                let dateTimestamp;
+                if (dateType === 'purchase') {
+                    dateTimestamp = new Date(row.querySelectorAll('.text-gray-900')[2].textContent.replace(/\./g, '-'));
+                } else if (dateType === 'subscription') {
+                    dateTimestamp = new Date(row.querySelectorAll('.text-gray-900')[4].textContent.replace(/\./g, '-'));
+                }
+
+                if (dateTimestamp >= startDateInput && dateTimestamp <= endDateInput) {
+                    row.style.display = '';
+                    totalCount++;
+
+                    // 숨겨진 행이 아닌 경우에만 번호를 업데이트
+                    if (window.getComputedStyle(row).display !== 'none') {
+                        const rowNumberCell = row.querySelector('td:first-child');
+                        rowNumberCell.textContent = totalCount;
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            document.getElementById('totalItemCount').textContent = '총 항목 수: ' + totalCount + ' 개';
+        }
+
+
+
+        // 날짜를 YYYY.MM.dd 형식으로 포맷팅하는 함수
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}.${month}.${day}`;
+        }
+    </script>
+
+    <!-- Footer -->
+    <div class="footer mt-auto">
+        <th:block th:replace="~{fragments/footer::footerFragment}"></th:block>
+    </div>
+</body>
+</html>

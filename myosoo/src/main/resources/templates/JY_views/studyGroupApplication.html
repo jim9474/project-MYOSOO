@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습그룹 가입신청</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+    <script>
+	    // 가입신청 버튼 클릭 시 실행되는 함수
+	    function applyForStudy() {
+	        // 선택된 라디오 버튼의 값 가져오기
+	        var selectedStudy = document.querySelector('input[name="selectedStudy"]:checked');
+	        
+	        // 선택된 라디오 버튼이 없으면 알림 표시
+	        if (!selectedStudy) {
+	            alert('가입신청할 스터디를 선택해주세요.');
+	            return;
+	        }
+	
+	        // 선택된 항목의 study 키를 URL에 전달하여 페이지 이동
+	        var url = 'studyGroupApp?study_key=' + selectedStudy.value;
+	        window.location.href = url;
+	    }
+	</script>
+    <style>
+        table {
+            border-collapse: separate;
+            border-spacing: 0 8px; /* 각 셀 사이의 수직 간격 설정, 필요에 따라 조절하세요 */
+        }
+
+        th, td {
+            border-bottom: 1px solid #e5e7eb; /* 각 셀의 하단에 구분선을 추가합니다 */
+        }
+
+        th, td {
+            border-right: 1px solid #e5e7eb; /* 각 th 요소의 오른쪽 테두리를 추가하여 구분선을 만듭니다 */
+        }
+
+        th, td:last-child {
+            border-right: none; /* 마지막 th 요소에는 오른쪽 테두리를 추가하지 않습니다 */
+        }
+    </style>
+</head>
+<body>
+	<!-- header -->
+   	<div class="header"><th:block th:replace="~{fragments/header::headerFragment}"></th:block></div>
+    <div class="bg-blue-100 p-6 max-w-7xl mx-auto rounded-lg">      
+        <div class="pt-4">
+		    <div class="flex items-center justify-between my-4">
+		          <form action="studyGroupAppSearch">
+		                <div class="flex items-center">
+					        <label class="block text-sm font-medium mb-1 w-32" for="keyword1">그룹명</label>
+					        <input type="text" id="groupSearch" name="keyword1" 
+					                   th:value="${study.keyword1}"
+					                   class="ml-1 mr-2 w-full border-2 p-2 rounded" placeholder="그룹명을 입력하세요">
+					        <label class="block text-sm font-medium mb-1 w-40" for="keyword2">교육자명</label>
+					        <input type="text" id="mentorSearch" name="keyword2" 
+					                   th:value="${study.keyword2}"
+					        			class="ml-1 mr-2 w-full border-2 p-2 rounded" placeholder="교육자명을 입력하세요">
+					        <button type="submit" class="bg-blue-500 text-white w-60 py-1 rounded">검색하기</button>
+					    </div>
+		           </form>
+		           <div>
+		               <button type="button" class="bg-orange-500 text-white px-4 py-1 rounded" th:onclick="'applyForStudy()'" >
+			               가입신청하기
+			           </button>
+		           </div>
+		    </div>
+		    <div th:if="${resultMsg != null}" th:text="${resultMsg}"></div>
+            <table class="w-full text-sm text-center text-gray-500 mb-4">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+                    <tr>
+                        <th scope="col" class="py-3 px-6"></th>
+                        <th scope="col" class="py-3 px-6">학습개월</th>
+                        <th scope="col" class="py-3 px-6">그룹명</th>
+                        <th scope="col" class="py-3 px-6">교육자명</th>
+                        <th scope="col" class="py-3 px-6">학습기간</th>
+                        <th scope="col" class="py-3 px-6">잔여T/O</th>
+                        <th scope="col" class="py-3 px-6">최대달성레벨</th>
+                    </tr>
+                </thead>
+                <tbody>
+                	<th:block th:each="study : ${listStudyGroupApp}">
+	                    <tr class="bg-white border-b ">
+	                        <td >
+	                        	<input class="text-left" type="radio" name="selectedStudy" th:value="${study.study_key}">
+	                        </td>
+	                        <td class="py-4 px-6"><p th:text="${study.study_month} + '개월'"></p></td>
+	                        <td class="py-4 px-6"><p th:text="${study.study_name}"></p></td>
+	                        <td class="py-4 px-6"><p th:text="${study.member_name}"></p></td>
+	                        <td class="py-4 px-6"><p th:text="${#dates.format(study.study_startdate, 'yyyy.MM.dd') + ' ~ ' + #dates.format(study.study_enddate, 'yyyy.MM.dd')}"></p></td>
+	                        <td class="py-4 px-6"><p th:text="${study.study_maxperson} + '명'"></p></td>
+	                        <td class="py-4 px-6"><p th:text="'Lv.' + ${study.study_maxlevel}"></p></td>
+	                    </tr>
+	             	</th:block>
+                </tbody>
+            </table>
+            <nav aria-label="Page navigation example" class="text-center">
+			    <ul class="inline-flex -space-x-px text-sm">
+			        <li th:if="${page.startPage > page.pageBlock}">
+			            <a th:href="@{studyGroupAppSearch(currentPage=${page.startPage - page.pageBlock}, keyword1=${study.keyword1}, keyword2=${study.keyword2})}"
+			               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+			                이전
+			            </a>
+			        </li>
+			        <li th:each="i : ${#numbers.sequence(page.startPage, page.endPage)}">
+			            <a th:href="@{studyGroupAppSearch(currentPage=${i}, keyword1=${study.keyword1}, keyword2=${study.keyword2})}"
+			               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+			                [[${i}]]
+			            </a>
+			        </li>
+			        <li th:if="${page.endPage < page.totalPage}">
+			            <a th:href="@{studyGroupAppSearch(currentPage=${page.startPage + page.pageBlock}, keyword1=${study.keyword1}, keyword2=${study.keyword2})}"
+			               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+			                다음
+			            </a>
+			        </li>
+			    </ul>
+			</nav>
+        </div>
+    </div>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

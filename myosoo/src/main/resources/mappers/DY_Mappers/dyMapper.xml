@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oracle.team2.dyMapper">
+
+   <insert id="dyEcSave" parameterType="EcCode">
+      INSERT INTO eccode (eccode_key, eccode_email, eccode_code, eccode_confirm)
+      VALUES (eccode_key_seq.nextval, #{eccode_email}, #{eccode_code}, 0)
+   </insert>
+   
+   <select id="dyConfirmEmail" parameterType="EcCode" resultType="EcCode">
+      select *
+      from eccode
+      where ECCODE_EMAIL=#{eccode_email} 
+      and ECCODE_CODE=#{eccode_code} and eccode_confirm=0
+   </select>
+   
+   <update id="dyUpdateEcCode" parameterType="EcCode">
+      update eccode set ECCODE_CONFIRM = 1
+      where eccode_email = #{eccode_email} and eccode_code = #{eccode_code} and eccode_confirm=0
+   </update>
+   
+   <select id="dyChkId" parameterType="String" resultType="Member">
+      SELECT member_id
+      FROM member
+      WHERE member_id = #{member_id}
+   </select>
+   
+   <insert id="DYMemberInsert" parameterType="Member">
+   insert into member values (member_key_seq.nextval, #{member_name}, #{member_email}, #{member_id}, 
+                        #{member_pw}, #{member_birth}, #{member_tel}, 100, #{member_mikey}, 
+                        #{member_gender}, sysdate, null, 0, 0)
+   </insert>
+   
+   <select id="dyFindById" parameterType="int" resultType="Member">
+      SELECT *
+       FROM member
+       WHERE member_key = #{member_key}
+   </select>
+   
+   <update id="dyUpdateMemberInfo" parameterType="Member">
+      update member set      
+      member_pw = #{member_pw},
+      member_tel = #{member_tel},
+      member_mikey = #{member_mikey},
+       member_update = sysdate
+      where member_key = #{member_key}
+      
+   </update>
+   
+   <update id="dyDeleteMemberInfo" parameterType="int">
+      update member 
+      set member_isdelete = 1
+      where member_key = #{member_key}
+   </update>
+   
+   <select id="dyGetDailySales" parameterType="Payment" resultType="Payment">
+      SELECT *
+       FROM (
+           SELECT TRUNC(payment_date) AS payment_date,
+                  SUM(payment_price) AS total_price,
+                  COUNT(payment_price) AS total_count,
+                  ROW_NUMBER() OVER (ORDER BY TRUNC(payment_date) DESC) AS row_num
+           FROM Payment
+           WHERE TRUNC(payment_date) BETWEEN TO_DATE(#{startDate}) AND TO_DATE(#{endDate})
+           GROUP BY TRUNC(payment_date)
+       ) t
+       WHERE t.row_num BETWEEN #{start} AND #{end}
+   </select>
+   
+   <select id="dyGetMonthlySales" parameterType="Payment" resultType="Payment">
+      SELECT *
+       FROM (
+           SELECT TO_CHAR(payment_date, 'YYYY-MM') AS payment_month,
+                  SUM(payment_price) AS total_price,
+                  COUNT(payment_price) AS total_count,
+                  ROW_NUMBER() OVER (ORDER BY TO_CHAR(payment_date, 'YYYY-MM') DESC) AS row_num
+           FROM Payment
+           WHERE payment_date BETWEEN TO_DATE(#{startDate}) AND TO_DATE(#{endDate})
+           GROUP BY TO_CHAR(payment_date, 'YYYY-MM')
+       ) t
+       WHERE t.row_num BETWEEN #{start} AND #{end}
+      
+   </select>
+   
+   <select id="dyFindPaymentsByDate" parameterType="String" resultType="Payment">
+      SELECT p.payment_date, m.member_id, g.game_name, p.payment_price
+       FROM payment p
+       JOIN member m ON p.member_key = m.member_key
+       JOIN game g ON p.game_key = g.game_key
+       WHERE TO_CHAR(p.payment_date, 'YYYY-MM-DD') = #{selectedDate}
+   </select>
+   
+   <select id="dyFindPaymentsByMonth" parameterType="String" resultType="Payment">
+      SELECT p.payment_date, m.member_id, g.game_name, p.payment_price
+       FROM payment p
+       JOIN member m ON p.member_key = m.member_key
+       JOIN game g ON p.game_key = g.game_key
+       WHERE TO_CHAR(p.payment_date, 'YYYY-MM') = #{selectedDate}
+   </select>
+   
+   <select id="dyGetDailySalesTotal" parameterType="Payment" resultType="int">
+      SELECT COUNT(*)
+      FROM (
+        SELECT payment_date
+        FROM payment
+        WHERE payment_date BETWEEN TO_DATE(#{startDate},'YYYY-MM-DD') AND TO_DATE(#{endDate},'YYYY-MM-DD')
+        GROUP BY payment_date
+      ) unique_dates
+   </select>
+   
+   <select id="dyGetMonthlySalesTotal" parameterType="Payment" resultType="int">
+      SELECT COUNT(*)
+      FROM (
+        SELECT TO_CHAR(payment_date, 'YYYY-MM') AS payment_month
+          FROM Payment
+          WHERE payment_date BETWEEN TO_DATE(#{startDate}) AND TO_DATE(#{endDate})
+          GROUP BY TO_CHAR(payment_date, 'YYYY-MM')
+      ) unique_dates
+   </select>
+   
+   
+   
+</mapper>

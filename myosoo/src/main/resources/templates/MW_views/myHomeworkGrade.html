@@ -1,0 +1,117 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+    <style>
+        .vertical-center {
+        	display: flex;
+        	align-items: center; /* 수직 중앙 정렬 */
+        	justify-content: center; /* 수평 중앙 정렬 */
+        	height: 100%; /* 라벨을 감싸는 부모 요소의 높이를 100%로 설정하여 수직 정렬합니다. */
+    	}
+    </style>
+</head>
+<body>
+	<!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+   
+    <div class="max-w-5xl mx-auto p-6 bg-white shadow-lg mt-10">
+        <div class="flex justify-between items-center border-blue-300 pb-4">
+            <div>
+                <label class="text-xl font-bold">학습자 : <span th:text="${session.member_name}"></span></label>
+            </div>
+        </div>
+        <div class="flex justify-center gap-1 py-1">
+        	<div class="flex-6 bg-blue-100 p-4 text-center">
+                <h2 class="text-lg font-bold mb-3">NO</h2>
+            </div>
+            <div class="flex-1 bg-blue-100 p-4 text-center">
+                <h2 class="text-lg font-bold mb-3">숙제 목록</h2>
+            </div>
+        </div>
+        <div class="flex justify-center gap-1 py-1 mb-1" th:each="items : ${myGradeList}">
+            <div class="flex-6 bg-blue-100 p-6 relative">
+                <label class="text-lg" th:text="${items.rn}" style="position: relative; top: 50%; transform: translateY(-50%); left: 50%; transform: translateX(-50%);"></label>
+            </div>
+            <div class="flex-1 bg-blue-100 p-4 flex">
+            	<div class="flex-1 bg-blue-100 p-4">
+                	<div class="mb-2">
+                    	<label class="text-gray-500">교육자 </label>
+                	</div>
+                	<div class="mb-2">
+                    	<input type="text" class="p-1 border border-gray-300 rounded" th:value="${items.member_name}" readonly>
+                	</div>
+                	<div class="mb-2">
+                    	<label class="text-gray-500">숙제명 </label>
+                	</div>
+                	<div class="mb-2">
+                    	<input type="text" class="p-1 border border-gray-300 rounded" th:value="${items.homework_name}" readonly>
+                	</div>
+                	<div class="mb-2">
+                    	<label class="text-gray-500">숙제내용 </label>
+                	</div>
+                	<div class="mb-2">
+                    	<input type="text" class="p-1 border border-gray-300 rounded" th:value="${items.homework_content}" readonly>
+                	</div>
+                	<div class="mb-2">
+                    	<label class="text-gray-500">제출내용 </label>
+                	</div>
+                	<div class="mb-2">
+                    	<input type="text" class="p-1 border border-gray-300 rounded" th:value="${items.deployment_content}" readonly>
+                	</div>
+                	<div class="mb-2">
+                    	<label class="text-gray-500">학습레벨</label>
+                	</div>
+                	<div class="mb-2">
+                    	<input type="number" min="0" class="p-1 border border-gray-300 rounded" th:value="${items.homework_level}" readonly>
+                	</div>
+                	<div>
+                    	<label class="text-gray-500">성적</label>
+                	</div>
+                	<div class="mb-2">
+                    	<input type="text" class="p-1 border border-gray-300 rounded" th:value="${items.deployment_grade == 0 ? '미흡' : (items.deployment_grade == 1 ? '보통' : '우수')}" readonly>
+                	</div>
+            	</div>
+            	<div class="flex-1 bg-blue-100 p-4" id="textarea">
+                	<div class="bg-gray-50 p-4 mb-4 rounded">
+                    	<h2 class="text-lg font-bold mb-3">추가 질의 내용</h2>
+                    	<textarea id="textarea1" class="w-full p-2 border border-gray-300" rows="4" th:text="${items.deployment_question}" readonly></textarea>
+                </div>
+                <div class="bg-gray-50 p-4 rounded">
+                    <h2 class="text-lg font-bold mb-3">추가 질의 답변</h2>
+                    <textarea id="textarea2" class="w-full p-2 border border-gray-300" rows="4" th:text="${items.deployment_answer}" readonly></textarea>
+                </div>
+            </div>
+            </div>
+        </div>
+            <!-- paging button -->
+			<nav aria-label="Page navigation example" class="text-center">
+             <ul class="inline-flex -space-x-px text-sm">
+                <li th:if="${page.startPage > page.pageBlock}">
+                    <a th:href="@{/myHomeworkGrade(currentPage=${page.startPage - page.pageBlock})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        이전
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(page.startPage, page.endPage)}">
+                    <a th:href="@{/myHomeworkGrade(currentPage=${i})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        [[${i}]]
+                    </a>
+                </li>
+                <li th:if="${page.endPage < page.totalPage}">
+                    <a th:href="@{/myHomeworkGrade(currentPage=${page.startPage + page.pageBlock})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        다음
+                    </a>
+                </li>
+            </ul>
+           </nav>
+    </div>
+   
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

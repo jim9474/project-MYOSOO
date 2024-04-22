@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<th:block th:fragment="headerFragment">
+	<nav>
+		<div class="container mx-auto p-4">
+			<div
+				class="flex items-center justify-between border-b-2 border-blue-500 pb-2">
+				<a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+					<img src="img/Myosoo.png" class="h-12" alt="Myosoo Logo" />
+				</a>
+				<div class="flex items-center">
+					<h1 class="text-xl font-bold text-green-800">게임으로 배우는 바둑교실</h1>
+				</div>
+				<div class="flex">
+					<a th:if="${session.member_id == null}" href="loginViews" class="text-sm text-green-800">로그인</a>				
+					<th:block th:if="${session.member_id}">
+        				<a href="memberInfo"  th:text="${session.member_id + '님 |  '}"></a>
+        				<a href="logout"> 로그아웃</a>
+    				</th:block>
+				</div>
+			</div>
+		</div>
+
+		<div class="container mx-auto p-4">
+			<nav class="flex justify-between mt-4 gap-2 pb-2">
+				<a id="colorChangeButton1" 
+					class="w-1/5 bg-blue-500 text-white text-center py-2 rounded-lg hover:bg-blue-300 hover:text-blue-800">
+					이용 안내 </a>
+				<div id="guideElement"
+					style="display: none; position: absolute; background-color: #f9f9f9; min-width: 290px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); padding: 12px 16px; z-index: 1; top: 162px;">
+					
+					<p>
+						<a href="/siteGuideView">사이트 이용 안내</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a href="badukContentView">바둑 콘텐츠 소개</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a href="/boardList">공지사항</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a href="/myQnAList">문의</a>
+					</p>
+				</div>
+
+				<a id="colorChangeButton2" 
+					class="w-1/5 bg-blue-500 text-white text-center py-2 rounded-lg hover:bg-blue-300 hover:text-blue-800">구독서비스</a>
+				<div id="subscriptionDropdown"
+					style="display: none; position: absolute; background-color: #f9f9f9; min-width: 290px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); padding: 12px 16px; z-index: 1; top: 162px;"
+					>
+					
+					<p>
+						<a id="subscriptionApplicationListViewLink" th:href="@{subscriptionApplicationListView}">게임 콘텐츠 검색 및 구독 신청</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="purchaseHistoryViewLink" th:href="@{purchaseHistoryView}">내 구독 상품 조회</a>
+					</p>
+				</div>
+				<a id="colorChangeButton3"
+					class="w-1/5 bg-blue-500 text-white text-center py-2 rounded-lg hover:bg-blue-300 hover:text-blue-800">학습
+					서비스</a>
+				<div id="educational_Services"
+					style="display: none; position: absolute; background-color: #f9f9f9; min-width: 290px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); padding: 12px 16px; z-index: 1; top: 162px;"
+					>
+					<p>
+						<a id="studyGroupAppSearchLink" th:href="@{studyGroupAppSearch}">학습 그룹 가입 신청</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="myHomeworkLink" th:href="@{myHomework}">내 숙제 조회</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="myHomeworkGradeLink" th:href="@{myHomeworkGrade}">내 숙제 성적 조회</a>
+					</p>
+
+				</div>
+				<a id="colorChangeButton4"
+					class="w-1/5 bg-blue-500 text-white text-center py-2 rounded-lg hover:bg-blue-300 hover:text-blue-800">교육자마당</a>
+				<div id="educational_Plaza"
+					style="display: none; position: absolute; background-color: #f9f9f9; min-width: 290px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); padding: 12px 16px; z-index: 1; top: 162px;"
+					>
+					<p>
+						<a id="studyGroupViewLink" th:href="@{/studyGroupView}">학습 그룹 등록 (게임콘텐츠 검색)</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="studyGroupSelectViewLink" th:href="@{studyGroupSelectView}"> 학습 그룹 조회</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="studyJoinAppFormLink" th:href="@{studyJoinAppForm}"> 학습 그룹 가입 승인</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="homeworkSendLink" th:href="@{homeworkSend}">숙제 전송</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="insertHomeworkLink" th:href="@{/insertHomework}">숙제 등록</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="homeworkGradeLink" th:href="@{homeworkGrade}">숙제 평가</a>
+					</p>
+				</div>
+				<a id="colorChangeButton5"
+					class="w-1/5 bg-blue-500 text-white text-center py-2 rounded-lg hover:bg-blue-300 hover:text-blue-800">운영마당</a>
+				<div id="Operations_Yard"
+					style="display: none; position: absolute; background-color: #f9f9f9; min-width: 290px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); padding: 12px 16px; z-index: 1; top: 162px;"
+					>
+					<p>
+						<a id="gameRegiViewLink" th:href="@{gameRegiView}">게임콘텐츠 등록</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="gameContentViewLink" th:href="@{gameContentView}">게임콘텐츠 조회</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="stFileInsertViewLink" th:href="@{stFileInsertView}">학습자료 등록</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="stFileListViewLink" th:href="@{stFileListView}">학습자료 조회</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="boardListLink" th:href="@{/boardList}">운영 게시판</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="qnaListLink" th:href="@{/qnaList}">문의 확인</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="salesManagementLink" th:href="@{/salesManagement}">매출 관리</a>
+					</p>
+					<hr class="my-1 border-gray-300">
+					<p>
+						<a id="selectMemberLink" th:href="@{selectMember}">회원 관리</a>
+					</p>
+				</div>
+
+			</nav>
+		</div>
+	</nav>
+
+	<script th:inline="javascript">
+		// Get the '이용 안내' element
+		var guideElement = document.getElementById('colorChangeButton1');
+
+		// Append the dropdown menu to the '이용 안내' element
+		guideElement.appendChild(document.getElementById('guideElement'));
+
+		// Show the dropdown menu when mouse hovers over '이용 안내'
+		guideElement.addEventListener('mouseover', function() {
+			document.getElementById('guideElement').style.display = 'block';
+		});
+
+		// Hide the dropdown menu when mouse leaves '이용 안내'
+		guideElement.addEventListener('mouseout', function() {
+			document.getElementById('guideElement').style.display = 'none';
+		});
+
+		// Get the '구독 서비스' element
+		var subscriptionElement2 = document.getElementById('colorChangeButton2');
+
+		// Append the dropdown menu to the '구독 서비스' element
+		subscriptionElement2.appendChild(document
+				.getElementById('subscriptionDropdown'));
+
+		// Show the dropdown menu when mouse hovers over '구독 서비스'
+		subscriptionElement2
+				.addEventListener(
+						'mouseover',
+						function() {
+							document.getElementById('subscriptionDropdown').style.display = 'block';
+						});
+
+		// Hide the dropdown menu when mouse leaves '구독 서비스'
+		subscriptionElement2
+				.addEventListener(
+						'mouseout',
+						function() {
+							document.getElementById('subscriptionDropdown').style.display = 'none';
+						});
+
+		// 학습 서비스
+		var subscriptionElement3 = document.getElementById('colorChangeButton3');
+
+		subscriptionElement3.appendChild(document
+				.getElementById('educational_Services'));
+
+		subscriptionElement3
+				.addEventListener(
+						'mouseover',
+						function() {
+							document.getElementById('educational_Services').style.display = 'block';
+						});
+
+		subscriptionElement3
+				.addEventListener(
+						'mouseout',
+						function() {
+							document.getElementById('educational_Services').style.display = 'none';
+						});
+
+		// 교육자 마당
+		var subscriptionElement4 = document.getElementById('colorChangeButton4');
+
+		subscriptionElement4.appendChild(document
+				.getElementById('educational_Plaza'));
+
+		subscriptionElement4
+				.addEventListener(
+						'mouseover',
+						function() {
+							document.getElementById('educational_Plaza').style.display = 'block';
+						});
+
+		subscriptionElement4
+				.addEventListener(
+						'mouseout',
+						function() {
+							document.getElementById('educational_Plaza').style.display = 'none';
+						});
+
+		// 운영 마당
+		var subscriptionElement5 = document.getElementById('colorChangeButton5');
+
+		subscriptionElement5.appendChild(document
+				.getElementById('Operations_Yard'));
+
+		subscriptionElement5.addEventListener('mouseover', function() {
+			document.getElementById('Operations_Yard').style.display = 'block';
+		});
+
+		subscriptionElement5.addEventListener('mouseout', function() {
+			document.getElementById('Operations_Yard').style.display = 'none';
+		});
+		
+		
+		// 내 숙제 조회
+	    /*<![CDATA[*/
+	    var myHomeworkLink = document.getElementById('myHomeworkLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 20) { // 권한이 없는 경우
+	    	myHomeworkLink.classList.add('disabled');
+	    	myHomeworkLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/	
+	    
+	    // 내 숙제 성적 조회
+	    /*<![CDATA[*/
+	    var myHomeworkGradeLink = document.getElementById('myHomeworkGradeLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 20) { // 권한이 없는 경우
+	    	myHomeworkGradeLink.classList.add('disabled');
+	    	myHomeworkGradeLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/	
+	    
+	    // 숙제전송
+	    /*<![CDATA[*/
+	    var homeworkSendLink = document.getElementById('homeworkSendLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 10) { // 권한이 없는 경우
+	    	homeworkSendLink.classList.add('disabled');
+	    	homeworkSendLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/	
+	    
+	    // 숙제등록
+	    /*<![CDATA[*/
+	    var insertHomeworkLink = document.getElementById('insertHomeworkLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 10) { // 권한이 없는 경우
+	    	insertHomeworkLink.classList.add('disabled');
+	    	insertHomeworkLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/	
+	    
+	    // 숙제평가
+	    /*<![CDATA[*/
+	    var homeworkGradeLink = document.getElementById('homeworkGradeLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 10) { // 권한이 없는 경우
+	    	homeworkGradeLink.classList.add('disabled');
+	    	homeworkGradeLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 운영자의 회원조회
+	    /*<![CDATA[*/
+	    var selectMemberLink = document.getElementById('selectMemberLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 40) { // 권한이 없는 경우
+	    	selectMemberLink.classList.add('disabled');
+	    	selectMemberLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 운영자의 매출관리
+	    /*<![CDATA[*/
+	    var salesManagementLink = document.getElementById('salesManagementLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 40) { // 권한이 없는 경우
+	    	salesManagementLink.classList.add('disabled');
+	    	salesManagementLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 학습자의 학습그룹 가입신청
+	    /*<![CDATA[*/
+	    var studyGroupAppSearchLink = document.getElementById('studyGroupAppSearchLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 20) { // 권한이 없는 경우
+	    	studyGroupAppSearchLink.classList.add('disabled');
+	    	studyGroupAppSearchLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 교육자의 학습그룹 가압승인
+	    /*<![CDATA[*/
+	    var studyJoinAppFormLink = document.getElementById('studyJoinAppFormLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 10) { // 권한이 없는 경우
+	    	studyJoinAppFormLink.classList.add('disabled');
+	    	studyJoinAppFormLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 운영자의 학습자료 등록
+	    /*<![CDATA[*/
+	    var stFileInsertViewLink = document.getElementById('stFileInsertViewLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 40) { // 권한이 없는 경우
+	    	stFileInsertViewLink.classList.add('disabled');
+	    	stFileInsertViewLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/
+	    
+	    // 운영자의 학습자료 조회
+	    /*<![CDATA[*/
+	    var stFileListViewLink = document.getElementById('stFileListViewLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 40) { // 권한이 없는 경우
+	    	stFileListViewLink.classList.add('disabled');
+	    	stFileListViewLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 교육자의 학습그룹 등록
+	    /*<![CDATA[*/
+	    var studyGroupViewLink = document.getElementById('studyGroupViewLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 10) { // 권한이 없는 경우
+	    	studyGroupViewLink.classList.add('disabled');
+	    	studyGroupViewLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/	
+	    
+	    // 교육자의 학습그룹 조회
+	    /*<![CDATA[*/
+	    var studyGroupSelectViewLink = document.getElementById('studyGroupSelectViewLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 10) { // 권한이 없는 경우
+	    	studyGroupSelectViewLink.classList.add('disabled');
+	    	studyGroupSelectViewLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 교육자 및 일반인의 게임콘텐츠 구독 신청 및 검색
+	    /*<![CDATA[*/
+	    var subscriptionApplicationListViewLink = document.getElementById('subscriptionApplicationListViewLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || (memberMikey !== 10 && memberMikey !== 30)) { // 권한이 없는 경우
+	    	subscriptionApplicationListViewLink.classList.add('disabled');
+	    	subscriptionApplicationListViewLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 교육자 및 일반인의 내 구독상품 조회
+	    /*<![CDATA[*/
+	    var purchaseHistoryViewLink = document.getElementById('purchaseHistoryViewLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || (memberMikey !== 10 && memberMikey !== 30)) { // 권한이 없는 경우
+	    	purchaseHistoryViewLink.classList.add('disabled');
+	    	purchaseHistoryViewLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 운영자의 게임콘텐츠 등록
+	    /*<![CDATA[*/
+	    var gameRegiViewLink = document.getElementById('gameRegiViewLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 40) { // 권한이 없는 경우
+	    	gameRegiViewLink.classList.add('disabled');
+	    	gameRegiViewLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 운영자의 게임콘텐츠 조회
+	    /*<![CDATA[*/
+	    var gameContentViewLink = document.getElementById('gameContentViewLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 40) { // 권한이 없는 경우
+	    	gameContentViewLink.classList.add('disabled');
+	    	gameContentViewLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 운영자의 운영게시판
+	    /*<![CDATA[*/
+	    var boardListLink = document.getElementById('boardListLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 40) { // 권한이 없는 경우
+	    	boardListLink.classList.add('disabled');
+	    	boardListLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+	    
+	    // 운영자의 문의확인
+	    /*<![CDATA[*/
+	    var qnaListLink = document.getElementById('qnaListLink');
+	    var memberMikey = /*[[${session.member_mikey}]]*/ null;
+
+	    if (memberMikey === null || memberMikey !== 40) { // 권한이 없는 경우
+	    	qnaListLink.classList.add('disabled');
+	    	qnaListLink.addEventListener('click', function(event) {
+	            event.preventDefault(); // 링크 클릭 이벤트 중지
+	            alert('권한이 없습니다.');
+	        });
+	    }
+	    /*]]>*/		
+		
+		
+		
+		
+		
+	</script>
+
+</th:block>
+</html>
+
+ 

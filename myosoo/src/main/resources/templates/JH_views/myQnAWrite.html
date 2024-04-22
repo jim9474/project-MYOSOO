@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+  </head>
+  <body>
+    <!-- header -->
+    <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+
+    <div class="bg-white p-8 rounded-md w-full">
+      <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+        <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+          <div class="max-w-4xl mx-auto py-10">
+            <h3 class="text-2xl font-bold text-center mt-2 mb-4">
+              일대일 문의 작성
+            </h3>
+            <div class="mt-8">
+              <form action="submitMyQnA" method="post" id="boardForm">
+				<input type="hidden" name="board_makey" value="600"> <!-- 게시판 유형 설정 -->
+                <div class="mb-4">
+                  <div class="bg-white p-6 rounded shadow-sm">
+                    <h2 class="font-medium font-bold mb-3">
+                      글제목
+                      <input
+                        type="text"
+                        class="w-full border border-gray-300 rounded px-3 py-2 text-base"
+                        name="board_title"
+                        placeholder="제목을 적어주세요"
+                      />
+                    </h2>
+                    <div class="grid grid-cols-2 gap-8 mb-4">
+                      <div>
+                        <label class="block text-base font-medium mb-1"
+                          >게시판 유형</label
+                        >
+                        <!-- 대분류 600 일대일 문의 Q&A -->
+                        <div
+                          class="w-full border border-gray-300 rounded px-3 py-2 font-medium"
+                          name="board_makey"
+                          id="board_makey"
+                        >
+                          일대일 문의
+                        </div>
+                      </div>
+                      <div>
+                        <label class="block text-base font-medium mb-1"
+                          >주제 선택</label
+                        >
+                        <select
+                          class="w-full border border-gray-300 rounded px-3 py-2 font-medium"
+                          name="board_mikey" id="board_mikey"
+                        >
+                          <!-- 600 일대일 문의 Q&A / 소분류 10 회원정보 20 상품구매 30 사이트이용 40 기타 -->
+                          <option value="10">회원정보</option>
+                          <option value="20">상품구매</option>
+                          <option value="30">사이트이용</option>
+                          <option value="40">기타</option>
+                        </select>
+                      </div>
+                    </div>
+                    <!-- 질문과 답변 입력 필드  -->
+                    <div id="QnAContent">
+                      <div>
+                        <h2 class="font-medium font-bold mb-2">질문</h2>
+                        <textarea
+                          class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                          placeholder="질문을 적어주세요 (작성자가 입력한 값 추후 불러올 예정)"
+                          name="board_content"
+                          rows="12"
+                        ></textarea>
+                      </div>
+                    </div>
+                    <!-- 파일 첨부 섹션 -->
+                    <h2 class="font-medium font-bold mb-2 mt-8">파일 첨부</h2>
+                    <div
+                      class="mt-5 p-6 border-dashed border-2 border-gray-300 rounded-lg"
+                      id="fileDropArea"
+                    >
+                      <p class="text-center text-gray-500 mb-2">
+                        파일을 이곳에 끌어다 놓거나 클릭하여 업로드하세요.
+                        <br />
+                        (파일 1개당 최대 첨부용량 30MB)
+                      </p>
+                      <input
+                        type="file"
+                        class="hidden"
+                        id="fileInput"
+                        multiple
+                      />
+                      <div class="text-center">
+                        <button
+                          type="button"
+                          class="px-4 py-2 rounded text-white bg-blue-500"
+                          id="fileUploadBtn"
+                        >
+                          파일 선택
+                        </button>
+                      </div>
+                      <ul id="fileList" class="mt-4"></ul>
+                    </div>
+                    <div class="flex justify-center mt-2 space-x-4">
+                      <button
+                        type="button"
+                        class="px-6 py-2 rounded"
+                        style="background-color: gray; color: white"
+                        id="cancelButton"
+                      >
+                        취소하기
+                      </button>
+                      <button
+                        type="submit"
+                        class="px-6 py-2 rounded"
+                        style="background-color: black; color: white"
+                      >
+                        등록하기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+  </body>
+</html>
+
+ <script th:inline="javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+	  
+    document.getElementById("fileUploadBtn").addEventListener("click", function() {
+      document.getElementById("fileInput").click();
+    });
+
+    document.getElementById("cancelButton").addEventListener("click", function() {
+      const confirmResult = confirm("취소할 경우 작성된 내용은 저장되지 않습니다!");
+      if (confirmResult) {
+        window.history.back();
+      }
+    });
+
+    var fileDropArea = document.getElementById("fileDropArea");
+    fileDropArea.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      fileDropArea.classList.add("bg-gray-200");
+    });
+
+    fileDropArea.addEventListener("dragleave", function(e) {
+      e.preventDefault();
+      fileDropArea.classList.remove("bg-gray-200");
+    });
+
+    fileDropArea.addEventListener("drop", function(e) {
+      e.preventDefault();
+      fileDropArea.classList.remove("bg-gray-200");
+      handleFiles(e.dataTransfer.files);
+    });
+
+    document.getElementById("fileInput").addEventListener("change", function() {
+      handleFiles(this.files);
+    });
+
+    function handleFiles(files) {
+      var fileList = document.getElementById("fileList");
+      fileList.innerHTML = ""; // 기존 목록을 비웁니다.
+      Array.from(files).forEach(file => {
+        var listItem = document.createElement("li");
+        listItem.textContent = file.name; // 파일 이름을 목록추가 
+        fileList.appendChild(listItem);
+      });
+    }
+
+	document.getElementById("boardForm").addEventListener("submit", function(event) {
+		
+		event.preventDefault(); // 기본 제출 동작 방지
+		var title = document.getElementsByName("board_title")[0].value.trim();
+		var content = document.getElementsByName("board_content")[0].value.trim();
+
+		// 제목 또는 질문 내용이 비어 있는지 검사
+		if (title === "" || content === "") {
+			alert("제목과 질문 내용을 모두 작성해주세요.");
+			return; // 폼 제출 중단
+		}
+
+		var formData = new FormData(this);
+
+		// FormData 객체 내용 확인
+		for (var pair of formData.entries()) {
+			console.log(pair[0]+ ', ' + pair[1]);
+		}
+
+		fetch('/submitMyQnA', {
+			method: 'POST',
+			body: formData, 
+		})
+		.then(response => {
+			if (response.ok) {
+			// 성공적인 응답 처리, 예를 들어 목록 페이지로 리다이렉션
+			window.location.href = '/myQnAList';
+			} else {
+			throw new Error('Network response was not ok');
+			}
+		})
+		.catch(error => console.error('Error:', error)); // 에러 처리
+    });
+  });
+  
+</script>

@@ -1,0 +1,44 @@
+server:
+  port: 7777
+
+# Oracle connect
+spring:
+  # File Size
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+
+  datasource:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@localhost:1521/xe
+    username: myosoo
+    password: 1234
+    
+      # gmail Transfer
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dladyd1119@gmail.com
+    password: qubk cstp mvgj htfz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
+
+      
+  #mybatis
+mybatis:
+  config-location: classpath:configuration.xml
+  mapper-locations:
+  - classpath:mappers/DY_Mappers/*.xml
+  - classpath:mappers/JH_Mappers/*.xml
+  - classpath:mappers/JM_Mappers/*.xml
+  - classpath:mappers/JY_Mappers/*.xml
+  - classpath:mappers/MS_Mappers/*.xml
+  - classpath:mappers/MW_Mappers/*.xml
+  - classpath:mappers/YS_Mappers/*.xml
+
+
+  

@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oracle.team2.mwMapper">
+	<select id="mwGroup" parameterType="int" resultType="Study1">
+		select *
+		from study
+		where member_key = #{member_key}
+	</select>
+	
+	<select id="vsLevel" parameterType="Homework" resultType="int">
+		select *
+		from study
+		where study_maxlevel >= #{homework_level} and study_key = #{study_key}
+	</select>
+	
+	<insert id="saveHomework" parameterType="Homework">
+		insert into homework
+		values(homework_key_seq.nextval, #{study_key}, #{homework_name}, #{homework_content}, #{homework_level},
+		#{homework_date}, sysdate, null)
+	</insert>
+	
+	<select id="selectHomework" parameterType="int" resultType="Homework">
+		select homework.*, study_name
+		from homework, study
+		where homework.study_key = study.study_key
+		and homework.study_key in (select study_key
+                    				from study
+                    				where member_key = #{member_key})
+		order by homework_regdate desc
+	</select>
+	
+	<select id="getHomeworkPage" parameterType="Homework"
+	resultType="Homework">
+
+	SELECT a.*
+	FROM (
+			SELECT hw.*, rownum AS rn
+			FROM (SELECT homework.*, study.study_name
+					FROM homework
+					JOIN
+						study ON homework.study_key = study.study_key
+					WHERE homework.study_key IN (SELECT study_key FROM study
+													WHERE member_key = #{member_key})
+													ORDER BY homework_regdate DESC
+												) hw
+				)a
+	WHERE rn BETWEEN #{start} AND #{end}
+
+	</select>
+	
+	<select id="studentList" parameterType="int" resultType="Student">
+		select member.member_key, member.member_name, member.member_tel, student.student_level, student.study_key
+		from student
+		join member on member.member_key = student.member_key
+		where student.study_key = #{study_key}
+		and student.student_confirm = 1
+	</select>
+	
+	<select id="homeworkList" parameterType="int" resultType="Homework">
+		select homework.*, study.study_name
+		from homework
+		join study on homework.study_key = study.study_key
+		where homework.study_key = #{study_key}
+	</select>
+	
+	<insert id="insertDeployment" parameterType="Deployment">
+		insert into deployment(homework_key, member_key, deployment_senddate, deployment_submit) 
+		values (#{homework_key}, #{member_key}, sysdate, 0)
+	</insert>
+	
+	
+	<select id="myHomeworkList" parameterType="Deployment" resultType="Deployment">
+		select a.*
+		from
+		(select rownum as rn,g.game_name,m.member_name,h.*,d.deployment_content,d.deployment_question
+		from homework h join deployment d on h.homework_key = d.homework_key
+		join study st on h.study_key = st.study_key
+		join member m on st.member_key = m.member_key
+		join game g on st.game_key = g.game_key
+		where d.member_key = #{member_key}
+		and d.deployment_submit = 0
+		order by d.deployment_senddate desc) a
+		where rn between #{start} and #{end}
+	</select>
+	
+	<select id="hwCount" parameterType="int" resultType="int">
+		select count(*)
+		from deployment
+		where deployment_submit = 0 and member_key = #{member_key}
+	</select>
+	
+	<update id="deploymentSave" parameterType="Deployment">
+		update deployment
+		set deployment_content = #{deployment_content}, deployment_question = #{deployment_question}
+		where homework_key = #{homework_key} and member_key = #{member_key} and deployment_submit = 0
+	</update>
+	
+	<update id="deploymentSubmit" parameterType="Deployment">
+		update deployment
+		set deployment_date = sysdate, deployment_submit = 1
+		where homework_key = #{homework_key} and member_key = #{member_key} and deployment_submit = 0
+	</update>
+	
+	<select id="sendHomeworkListAll" parameterType="int" resultType="Homework">
+		SELECT *
+		FROM (
+    		SELECT 
+        		homework.*,
+        		study_name,
+        		TO_CHAR(deployment_senddate, 'YYYY-MM-DD') AS formatted_senddate,
+        		ROW_NUMBER() OVER (PARTITION BY homework.homework_key ORDER BY deployment_senddate DESC) AS rn
+    		FROM 
+        		homework
+        		INNER JOIN study ON homework.study_key = study.study_key
+        		INNER JOIN deployment ON homework.homework_key = deployment.homework_key
+    		WHERE 
+        		homework.study_key IN (
+            							SELECT study_key
+            							FROM study
+            							WHERE member_key = #{member_key}
+        							)
+		)
+		where rn = 1	
+		ORDER BY formatted_senddate DESC
+	</select>
+	
+	<select id="sendHomeworkListGroup" parameterType="int" resultType="Homework">
+		SELECT *
+		FROM (
+    		SELECT 
+        		a.*,
+        		ROW_NUMBER() OVER (PARTITION BY a.homework_key ORDER BY a.formatted_senddate DESC) AS rn
+    		FROM (
+        		SELECT DISTINCT 
+            		homework.*, 
+            		study.study_name, 
+            		TO_CHAR(deployment_senddate, 'YYYY-MM-DD') AS formatted_senddate
+        		FROM 
+            		homework
+            		JOIN study ON homework.study_key = study.study_key
+            		JOIN deployment ON homework.homework_key = deployment.homework_key
+        		WHERE 
+            		homework.study_key = #{study_key}
+    		) a
+		)
+		WHERE rn = 1
+		ORDER BY formatted_senddate DESC
+	</select>
+	
+	<select id="submitStudentList" parameterType="int" resultType="Deployment">
+		select rownum rn, d.member_key, d.homework_key, m.member_name, d.deployment_date, d.deployment_content, d.deployment_question, d.deployment_answer
+		from member m join deployment d on m.member_key = d.member_key
+		where d.homework_key = #{homework_key}
+		and d.deployment_submit = 1
+		and d.deployment_grade is null
+	</select>
+	
+	<update id="saveGrades" parameterType="Deployment">
+		update deployment
+		set deployment_answer = #{deployment_answer}, deployment_grade = #{deployment_grade}, deployment_gradedate = sysdate
+		where homework_key = #{homework_key} and member_key = #{member_key} and deployment_submit = 1
+	</update>
+	
+	<update id="levelUP">
+		update student
+		set student_level = #{homework_level}, student_leveldate = sysdate
+		where study_key = #{study_key} and member_key = #{member_key} and student_confirm = 1
+	</update>
+	
+	<select id="totalHwCount" parameterType="int" resultType="int">
+		select count(*)
+		from deployment
+		where member_key = #{member_key} and deployment_grade is not null
+	</select>
+	
+	<select id="myGradeList" parameterType="Deployment" resultType="Deployment">
+		select a.*
+		from
+    		(select rownum as rn,m.member_name,h.*,d.deployment_content,d.deployment_question,d.deployment_grade,d.deployment_answer
+    		from homework h join deployment d on h.homework_key = d.homework_key
+			join study st on h.study_key = st.study_key
+			join member m on st.member_key = m.member_key
+			join game g on st.game_key = g.game_key
+			where d.member_key = #{member_key}
+			and d.deployment_grade is not null
+			order by rn, deployment_gradedate) a
+		where rn between #{start} and #{end}
+	</select>
+	
+	<select id="detailHomework" parameterType="int" resultType="Homework">
+		select *
+		from homework
+		where homework_key = #{hk}
+	</select>
+	
+	<update id="updateHomework" parameterType="Homework">
+		update homework
+		set homework_name = #{homework_name}, homework_content = #{homework_content}, homework_level = #{homework_level}, homework_date = #{homework_date}, homework_update = sysdate
+		where homework_key = #{homework_key}
+		and (select study_maxlevel
+								from study
+								where study_key = #{study_key}
+							) >= #{homework_level}
+	</update>
+	
+	<delete id="hwDelete" parameterType="int">
+		delete from homework
+		where homework_key = #{homeWorkKey}
+	</delete>
+	
+	<select id="selectEmail" parameterType="int" resultType="Member">
+		select *
+		from member
+		where member_key = #{studentMk}
+	</select>
+	
+	
+	<select id="vsStudy" parameterType="Deployment" resultType="int">
+		select *
+		from student sd, homework hw
+		where sd.study_key = hw.study_key
+		and sd.member_key = #{member_key}
+		and hw.homework_key = #{homework_key}
+	</select>
+	
+	
+	<select id="selectDeployment" parameterType="Homework" resultType="Deployment">
+		select *
+		from deployment
+		where homework_key = #{homework_key}
+	</select>
+	
+	<select id="memberCount" resultType="int">
+		select count(*)
+		from member
+	</select>
+	
+	<select id="memberList" parameterType="Member" resultType="Member">
+		select a.*
+		from
+    		(select rownum rn, m.*, TO_CHAR(m.member_regdate, 'YYYY-MM-DD') AS formatted_regdate
+    		from member m)a
+		where rn between #{start} and #{end}
+	</select>
+	
+	<select id="searchMembers" parameterType="Member" resultType="Member">
+		SELECT
+            rownum as rn,
+            member_key,
+            member_mikey,
+            member_name,
+            member_id,
+            member_tel,
+            member_email,
+            member_isfree,
+            TO_CHAR(member_regdate, 'YYYY-MM-DD') as formatted_regdate
+        FROM
+            member
+        WHERE
+            (member_regdate BETWEEN TO_DATE(#{startDate}, 'YYYY-MM-DD') AND TO_DATE(#{endDate}, 'YYYY-MM-DD'))
+            AND (#{mikey} = 0 OR member_mikey = #{mikey})
+            AND (#{isfree} = 2 OR member_isfree = #{isfree})
+            AND (
+        		#{opt} = 0
+        		OR (#{opt} = 1 AND member_id LIKE '%' || #{keyword} || '%')
+        		OR (#{opt} = 2 AND member_tel LIKE '%' || #{keyword} || '%')
+        		OR (#{opt} = 3 AND member_name LIKE '%' || #{keyword} || '%')
+                )
+	</select>
+	
+	
+	<select id="searchMembers2" parameterType="Member" resultType="Member">
+		select a.*
+		from (
+		SELECT
+            rownum as rn,
+            member_key,
+            member_mikey,
+            member_name,
+            member_id,
+            member_tel,
+            member_email,
+            member_isfree,
+            TO_CHAR(member_regdate, 'YYYY-MM-DD') as formatted_regdate
+        FROM
+            member
+        WHERE
+            (member_regdate BETWEEN TO_DATE(#{startDate}, 'YYYY-MM-DD') AND TO_DATE(#{endDate}, 'YYYY-MM-DD'))
+            AND (#{mikey} = 0 OR member_mikey = #{mikey})
+            AND (#{isfree} = 2 OR member_isfree = #{isfree})
+            AND (
+        		#{opt} = 0
+        		OR (#{opt} = 1 AND member_id LIKE '%' || #{keyword} || '%')
+        		OR (#{opt} = 2 AND member_tel LIKE '%' || #{keyword} || '%')
+        		OR (#{opt} = 3 AND member_name LIKE '%' || #{keyword} || '%')
+                )	
+        )a
+        where rn between #{start} and #{end}        
+	</select>
+	
+	
+	<select id="memberDetail" parameterType="int" resultType="Member">
+		SELECT 
+    		m.member_name, 
+    		SUBSTR(m.member_birth, 1, 4) || '.' || SUBSTR(m.member_birth, 5, 2) || '.' || SUBSTR(m.member_birth, 7, 2) as member_birth_formatted, 
+    		m.member_isfree, 
+    		SUBSTR(m.member_tel, 1, 3) || '-' || SUBSTR(m.member_tel, 4, 4) || '-' || SUBSTR(m.member_tel, 8, 4) as member_tel_formatted, 
+    		(SELECT COUNT(*) FROM payment WHERE member_key = #{member_key}) AS payment_count, 
+    		m.member_email
+		FROM 
+    		member m 
+		WHERE 
+    		m.member_key = #{member_key} 
+	</select>
+	
+	
+	
+	
+	
+	
+</mapper>

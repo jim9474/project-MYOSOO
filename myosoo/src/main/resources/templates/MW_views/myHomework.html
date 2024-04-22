@@ -1,0 +1,214 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+</head>
+<body class="bg-gray-200">
+	<!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+   
+    <div class="max-w-5xl mx-auto p-6 bg-white shadow-lg mt-10">
+        <div class="flex justify-between items-center border-blue-300 pb-4">
+            <div>
+                <label class="text-xl font-bold">학습자 : <span th:text="${session.member_name}"></span></label>
+            </div>
+            <button class="bg-blue-500 text-white px-4 py-2" onclick="deploymentSave()">숙제 저장</button>
+        </div>
+        <div class="flex justify-center gap-1 py-1">
+            <div class="flex-1 bg-blue-100 p-4 text-center">
+                <h2 class="text-lg font-bold mb-3">숙제 내용</h2>
+            </div>
+            <div class="flex-1 bg-blue-100 p-4 text-center">
+                <h2 class="text-lg font-bold mb-3">학습 내용</h2>
+            </div>
+        </div>
+        <div class="flex justify-center gap-2 py-4 bg-blue-100 mb-1" th:each="homeworkList : ${myHomeworkList}">
+            <div class="w-12 bg-blue-100 p-6 text-center">
+                <input id="radioValue" type="radio" name="radio" class="form-checkbox h-5 w-5 text-blue-600" th:value="${homeworkList.homework_key}">
+            </div>
+            <div class="flex-1 bg-blue-100 p-4">
+                <div class="mb-2">
+                    <label class="text-gray-500">게임콘텐츠 </label>
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="p-1 border border-gray-300 rounded" th:value="${homeworkList.game_name}" readonly>
+                </div>
+                <div class="mb-2">
+                    <label class="text-gray-500">교육자 </label>
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="p-1 border border-gray-300 rounded" th:value="${homeworkList.member_name}" readonly>
+                </div>
+                <div class="mb-2">
+                    <label class="text-gray-500">숙제명 </label>
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="p-1 border border-gray-300 rounded" th:value="${homeworkList.homework_name}" readonly>
+                </div>
+                <div class="mb-2">
+                    <label class="text-gray-500">숙제내용 </label>
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="p-1 border border-gray-300 rounded" th:value="${homeworkList.homework_content}" readonly>
+                </div>
+                <div class="mb-2">
+                    <label class="text-gray-500">학습레벨</label>
+                </div>
+                <div class="mb-2">
+                    <input type="number" min="0" class="p-1 border border-gray-300 rounded" th:value="${homeworkList.homework_level}" readonly>
+                </div>
+                <div>
+                    <label class="text-gray-500">제출기한</label>
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="p-1 border border-gray-300 rounded" th:value="${homeworkList.homework_date}" readonly>
+                </div>
+            </div>
+            <div class="flex-1 bg-blue-100 p-4" id="textarea">
+                <div class="bg-gray-50 p-4 mb-4 rounded">
+                    <h2 class="text-lg font-bold mb-3">제출 내용</h2>
+                    <textarea id="textarea1" class="w-full p-2 border border-gray-300" rows="4" th:text="${homeworkList.deployment_content}"></textarea>
+                </div>
+                <div class="bg-gray-50 p-4 rounded">
+                    <h2 class="text-lg font-bold mb-3">추가 질의 내용</h2>
+                    <textarea id="textarea2" class="w-full p-2 border border-gray-300" rows="4" th:text="${homeworkList.deployment_question}"></textarea>
+                </div>
+            </div>
+        </div>
+            <!-- paging button -->
+			<nav aria-label="Page navigation example" class="text-center">
+             <ul class="inline-flex -space-x-px text-sm">
+                <li th:if="${page.startPage > page.pageBlock}">
+                    <a th:href="@{/myHomework(currentPage=${page.startPage - page.pageBlock})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        이전
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(page.startPage, page.endPage)}">
+                    <a th:href="@{/myHomework(currentPage=${i})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        [[${i}]]
+                    </a>
+                </li>
+                <li th:if="${page.endPage < page.totalPage}">
+                    <a th:href="@{/myHomework(currentPage=${page.startPage + page.pageBlock})}"
+                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        다음
+                    </a>
+                </li>
+            </ul>
+           </nav>
+        <div class="text-center mt-4">
+            <button class="bg-blue-500 text-white px-4 py-2" onclick="submit()">제출하기</button>
+        </div>
+    </div>
+    
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var radios = document.querySelectorAll('input[type="radio"][name="radio"]');
+        var textareas = document.querySelectorAll('textarea');
+
+        function toggleTextareaState(event) {
+            var currentRadio = event.target;
+            var parentDiv = currentRadio.closest('.flex');
+            var currentTextarea = parentDiv.querySelectorAll('textarea');
+            var isChecked = currentRadio.checked;
+
+            textareas.forEach(function(textarea) {
+                textarea.disabled = true; // 모든 textarea 비활성화
+            });
+            
+            if (isChecked) {
+            	currentTextarea.forEach(function(textarea) {
+                    textarea.disabled = false; // 현재 라디오 버튼에 해당하는 textarea 활성화
+                });
+            }
+        }
+
+        radios.forEach(function(radio) {
+            radio.addEventListener("change", toggleTextareaState);
+        });
+
+        // 페이지 로드시 초기 상태 설정
+        toggleTextareaState({ target: document.querySelector('input[type="radio"][name="radio"]') });
+    });
+    
+    function deploymentSave() {
+    	var radio = document.querySelector('input[type="radio"]:checked');
+    	var textarea1 = document.getElementById("textarea1").value;
+    	var textarea2 = document.getElementById("textarea2").value;
+    	console.log(radioValue, textarea1, textarea2);
+    	
+    	if(!radio) {
+    		alert('숙제를 체크해주세요');
+    		return;
+    	}
+    	var radioValue = radio.value;
+    	
+    	if(!textarea1 || !textarea2) {
+    		alert('필드를 채워주세요');
+    		return;
+    	}
+    	
+    	var data = {
+    		homework_key: radioValue,
+    		deployment_content: textarea1,
+    		deployment_question: textarea2
+    	};
+    	
+    	var xhr = new XMLHttpRequest();
+    	xhr.open('POST', '/deploymentSave', true);
+    	xhr.setRequestHeader('Content-Type', 'application/json');
+    	xhr.onload = function() {
+    		if(xhr.status === 200){
+    			alert('숙제가 저장되었습니다');
+    			window.location.href = "myHomework";
+    		} else {
+    			console.error('서버 에러 발생');
+    		}
+    	}
+    	xhr.send(JSON.stringify(data));
+    }
+    
+    function submit() {
+    	 var radioChecked = document.querySelector('input[type="radio"]:checked');
+    	    
+    	 if (!radioChecked){
+    	    alert('제출할 숙제를 골라주세요');
+    	    return;
+    	 }
+    	    
+    	var radioValue = radioChecked.value;
+    	
+    	var formData = new FormData();
+    	formData.append('homework_key', radioValue);
+    	
+    	var xhr = new XMLHttpRequest();
+    	xhr.open('POST', '/deploymentSubmit', true);
+    	xhr.onload = function() {
+    		if(xhr.status === 200){
+    			alert('숙제를 제출하였습니다');
+    			window.location.href = "myHomework";
+    		} else {
+    			console.error('서버 에러 발생');
+    		}
+    	};
+    	xhr.onerror = function() {
+    		console.log('에이잭스 에러');
+    	};
+    	xhr.send(formData);
+    	
+
+    	
+    }
+    
+    
+    
+</script>
+    
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

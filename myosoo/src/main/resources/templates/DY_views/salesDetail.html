@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+<meta charset="UTF-8">
+<title>매출상세조회 페이지</title>
+
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+   th:src="@{js/jquery-3.7.1.min.js}"></script>
+
+
+<style>
+          body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+</style>
+<body>
+<th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+<div class="mt-5 bg-blue-100 p-6 max-w-6xl mx-auto rounded-lg">
+        <div class="flex justify-between items-center mb-4">
+            <div class="text-lg font-semibold">매출 상세조회</div>
+           <button onclick="goBack()" class="bg-blue-500 text-white font-semibold px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">뒤로가기</button>   
+        </div>
+        
+        <div class="border-t-2 pt-4 mt-5">
+ 
+           
+            <table class="w-full text-sm text-center text-gray-500 mb-4">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+              <tr>
+                  
+                  <th scope="col" class="py-3 px-6">No</th>
+                  <th scope="col" class="py-3 px-6">구매일자</th>
+                  <th scope="col" class="py-3 px-6">구매자</th>
+                  <th scope="col" class="py-3 px-6">구매상품</th>
+                  <th scope="col" class="py-3 px-6">구매금액</th>
+              </tr>
+          </thead>
+          <tbody id="t_body">
+              <tr th:each="payment, iterStat : ${payments}">
+                  <td th:text="${iterStat.index + 1}"></td>
+                 <td th:unless="${payment.payment_month}" th:text="${#dates.format(payment.payment_date, 'yyyy-MM-dd')}"></td>
+               <td th:if="${payment.payment_month}" th:text="${payment.payment_month}"></td>
+                  <td th:text="${payment.member_id}" ></td>
+                  <td th:text="${payment.game_name}" ></td>
+                  <td th:text="${payment.payment_price + '원'}"></td>
+              </tr>
+          </tbody>
+      </table>
+        </div>
+    </div>
+    
+    
+    
+    
+<div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>
+
+</body>
+
+<script type="text/javascript">
+//뒤로가기 버튼 클릭 시 이전 페이지로 이동
+function goBack() {
+    window.history.back();
+}
+</script>
+</html>

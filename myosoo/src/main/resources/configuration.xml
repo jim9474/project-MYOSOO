@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<typeAliases>
+		<typeAlias alias="Member"	type="com.oracle.team2.model.Member"/>
+		<typeAlias alias="Study1"	type="com.oracle.team2.model.Study1"/>
+		<typeAlias alias="Study2"	type="com.oracle.team2.model.Study2"/>
+		<typeAlias alias="BComment"	type="com.oracle.team2.model.BComment"/>
+		<typeAlias alias="Board"	type="com.oracle.team2.model.Board"/>
+		<typeAlias alias="Common"	type="com.oracle.team2.model.Common"/>
+		<typeAlias alias="Deployment"	type="com.oracle.team2.model.Deployment"/>
+		<typeAlias alias="EcCode"	type="com.oracle.team2.model.EcCode"/>
+		<typeAlias alias="Game1"	type="com.oracle.team2.model.Game1"/>
+		<typeAlias alias="Game2"	type="com.oracle.team2.model.Game2"/>
+		<typeAlias alias="Homework"	type="com.oracle.team2.model.Homework"/>
+		<typeAlias alias="Inquiry"	type="com.oracle.team2.model.Inquiry"/>
+		<typeAlias alias="Payment"	type="com.oracle.team2.model.Payment"/>
+		<typeAlias alias="StFile"	type="com.oracle.team2.model.StFile"/>
+		<typeAlias alias="Student"	type="com.oracle.team2.model.Student"/>
+		
+	</typeAliases>
+</configuration>

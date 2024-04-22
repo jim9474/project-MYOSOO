@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oracle.team2.mappers.JH_Mapper">
+
+	<select id="jhFindMemberById" parameterType="string" resultType="com.oracle.team2.model.Member">
+	    SELECT * FROM member WHERE member_id = #{memberId}
+	</select>
+	
+	<select id="jhSelectBoardByMemberKey" resultType="com.oracle.team2.model.Board">
+        SELECT * FROM board WHERE member_key = #{memberKey} ORDER BY board_key DESC
+    </select>
+  
+	<insert id="jhInsertBoard" parameterType="com.oracle.team2.model.Board">
+	 INSERT INTO board (board_key, member_key, board_title, board_makey, board_mikey, board_writer, board_content, board_see, board_comcount, board_regdate)
+        VALUES (board_key_seq.nextval, #{member_key}, #{board_title}, #{board_makey}, #{board_mikey}, #{board_writer}, #{board_content}, #{board_see}, #{board_comcount},CURRENT_DATE)
+    </insert>    
+    
+	<select id="jhFindByBoardKey" resultType="com.oracle.team2.model.Board">
+        SELECT * FROM board WHERE board_key = #{board_key}
+    </select>
+    
+    <select id="jhFindCommentsByBoardKey" resultType="com.oracle.team2.model.BComment">
+    	SELECT * FROM bcomment WHERE board_key = #{board_key}
+	</select>
+	
+	<select id="jhFindMaxCommentKey" resultType="int">
+    	SELECT COALESCE(MAX(bcomment_key), 0) FROM bcomment
+	</select>
+    
+	<insert id="jhInsertComment" parameterType="com.oracle.team2.model.BComment">
+	  	INSERT INTO bcomment (board_key, member_key, bcomment_key, bcomment_writer, bcomment_content, bcomment_regdate)
+    	VALUES (#{board_key}, #{member_key}, bcomment_key_seq.nextval, #{bcomment_writer}, #{bcomment_content}, CURRENT_DATE)
+    </insert>
+
+    <delete id="jhDeleteCommentsByBoardKey" parameterType="int">
+        DELETE FROM bcomment WHERE board_key = #{board_key}
+    </delete>
+    
+    <delete id="jhDeleteCommentsByBcommentKey" parameterType="int">
+        DELETE FROM bcomment WHERE bcomment_key = #{bcomment_key}
+    </delete>
+    
+    <update id="jhUpdateBoard" parameterType="map">
+        UPDATE board
+	    SET board_title = #{board_title}, board_content = #{board_content}, board_regdate = CURRENT_DATE, board_update = sysdate
+	    WHERE board_key = #{board_key}
+	</update>
+    
+    <delete id="jhDeleteBoardByBoardKey" parameterType="int">
+        DELETE FROM board WHERE board_key = #{board_key}
+    </delete>
+    
+    <delete id="jhDeleteInquiryByBoardKey" parameterType="int">
+        DELETE FROM inquiry WHERE board_key = #{board_key}
+    </delete>
+	
+    <update id="jhUpdateBoardIsComment" parameterType="int">
+	    UPDATE board
+	    SET board_iscomment = 1
+	    WHERE board_key = #{board_key}
+	</update>
+    
+    <update id="jhBoardSee">
+	    UPDATE board
+	    SET board_see = board_see + 1
+	    WHERE board_key = #{board_key}
+	</update>
+	
+	<update id="jhIncreaseBoardComCount" parameterType="int">
+	    UPDATE board
+	    SET board_comcount = board_comcount + 1
+	    WHERE board_key = #{board_key}
+    </update>
+    
+	<update id="jhDecreaseComCount" parameterType="int">
+	    UPDATE board
+	    SET board_comcount = board_comcount - 1
+	    WHERE board_key = #{board_key}
+    </update>
+
+	<select id="jhFindByBcommentKey" resultType="com.oracle.team2.model.BComment">
+        SELECT bcomment_key, board_key, bcomment_content, bcomment_writer FROM bcomment WHERE bcomment_key = #{bcomment_key}
+    </select>
+
+    <update id="jhUpdateComment" parameterType="map">
+        UPDATE bcomment
+	    SET bcomment_content = #{bcomment_content}, bcomment_regdate = CURRENT_DATE
+	    WHERE bcomment_key = #{bcomment_key}
+	</update>
+
+	<delete id="deleteMyQnAByBoardKey" parameterType="int">
+		DELETE FROM board
+		WHERE board_key = #{board_key}
+	</delete>
+	
+	<select id="jhSelectBoardListByMakey" resultType="com.oracle.team2.model.Board">
+        SELECT * FROM board WHERE board_makey = #{board_makey} ORDER BY board_key DESC
+    </select>
+	
+    <insert id="jhInsertInquiry" parameterType="map">
+        INSERT INTO inquiry (board_key, inquiry_content, inquiry_regdate)
+        VALUES (#{board_key}, #{inquiry_content}, CURRENT_DATE)
+    </insert>
+    
+     <select id="jhFindInquiryContentByBoardKey" resultType="String">
+        SELECT inquiry_content
+        FROM inquiry
+        WHERE board_key = #{board_key}
+    </select>
+
+    <select id="jhFindInquiriesByBoardKey" parameterType="int" resultType="com.oracle.team2.model.Inquiry">
+        SELECT board_key, inquiry_content, inquiry_regdate
+        FROM inquiry
+        WHERE board_key = #{board_key}
+    </select>
+    
+    <select id="jhFindInquiryByBoardKey" parameterType="int" resultType="com.oracle.team2.model.Inquiry">
+        SELECT board_key, inquiry_content, inquiry_regdate
+        FROM inquiry
+        WHERE board_key = #{board_key}
+    </select>
+    
+    <update id="jhUpdateInquiry" parameterType="map">
+        UPDATE inquiry
+	    SET inquiry_content = #{inquiry_content}, inquiry_regdate = CURRENT_DATE
+	    WHERE board_key = #{board_key}
+	</update>
+    
+    <select id="jhSearchBoardsByKeyword" resultType="com.oracle.team2.model.Board">
+    	SELECT
+            board_key,
+            board_makey,
+            board_mikey,
+            board_title,
+            board_writer,
+            board_see,
+            board_comcount,
+            board_regdate
+        FROM
+            board
+        WHERE
+            board_title LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+    
+    <select id="jhFindBoardsNoticeFaq" resultType="com.oracle.team2.model.Board">
+		SELECT *
+		FROM (
+    		SELECT b.*, ROW_NUMBER() OVER (ORDER BY board_regdate DESC) AS rn
+    		FROM Board b
+    		WHERE board_makey = 400 OR board_makey = 500
+		)
+		WHERE rn BETWEEN #{start} AND #{end}
+    </select>
+
+    <select id="jhCountBoardsNoticeFaq" resultType="int">
+        SELECT COUNT(*) FROM Board WHERE board_makey = 400 OR board_makey = 500
+    </select>
+    
+    <select id="jhFindBoardsQna" resultType="com.oracle.team2.model.Board">
+		SELECT *
+		FROM (
+			SELECT b.*, ROW_NUMBER() OVER (ORDER BY board_regdate DESC) AS rn
+			FROM Board b
+			WHERE member_key = #{memberKey} AND board_makey = 600
+		) 
+		WHERE rn BETWEEN #{start} AND #{end}
+    </select>
+
+    <select id="jhCountBoardsQna" resultType="int">
+        SELECT COUNT(*) FROM Board WHERE member_key = #{memberKey} AND board_makey = 600
+    </select>
+    
+    <select id="jhFindBoardsQnaAdmin" resultType="com.oracle.team2.model.Board">
+		SELECT *
+		FROM (
+			SELECT b.*, ROW_NUMBER() OVER (ORDER BY board_regdate DESC) AS rn
+			FROM Board b
+			WHERE board_makey = 600
+		)
+		WHERE rn BETWEEN #{start} AND #{end}
+    </select>
+
+    <select id="jhCountBoardsQnaAdmin" resultType="int">
+        SELECT COUNT(*) FROM Board WHERE board_makey = 600
+    </select>
+	
+	 
+	<delete id="jhDeleteInquiry" parameterType="int">
+		DELETE FROM inquiry
+		WHERE board_key = #{board_key}
+	</delete>
+	
+	<update id="jhDecreaseInquiry" parameterType="int">
+	    UPDATE board
+	    SET board_iscomment = 0
+	    WHERE board_key = #{board_key}
+	</update>
+	
+	
+</mapper>

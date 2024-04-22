@@ -1,0 +1,178 @@
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>메인화면</title>
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+	th:src="@{js/jquery-3.7.1.min.js}"></script>
+
+</head>
+
+<body>
+
+	<!-- header -->
+	<th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+	<div class="bg-blue-100 p-6 max-w-3xl mx-auto rounded-lg">
+
+		<div class="pt-4">
+			<div class="flex items-center justify-between my-4">
+				<div class="flex items-center">
+					<label class="block text-sm font-medium mb-1 " for="period">학습
+						그룹</label> <select name="study_key" id="study_key" class="ml-2 ">
+						<th:block th:each="studydetail:${studyDetailSelect}">
+							<option th:value="${studydetail.study_key}"
+								th:text="${studydetail.study_name}" class="ml-2">전체그룹</option>
+						</th:block>
+					</select>
+				</div>
+				<div>
+					<button onclick="selectBtn()"
+						class="bg-blue-500 text-white px-4 py-1 mr-1 rounded">조회하기</button>
+				</div>
+			</div>
+			<div id="tableid">
+				<div class="bg-gray-50 p-6 shadow-md"
+					th:each="studyGroupChk:${studyGroupOne}">
+					<div class="mb-4 flex justify-between">
+						<div class="w-1/2 mr-2">
+							<label class="block text-gray-700 text-sm font-bold mb-2 "
+								for="publishername"> 게임콘텐츠 </label> <input
+								th:value="${studyGroupChk.game_name}"
+								class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="game_name" type="text" placeholder="" disabled>
+						</div>
+						<div class="w-1/2 ml-2">
+							<label class="block text-gray-700 text-sm font-bold mb-2"
+								for="publishercode"> 게임 달성 레벨 </label> <input
+								th:value="${studyGroupChk.game_maxlevel}"
+								class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="game_maxlevel" type="text" placeholder=""disabled>
+						</div>
+					</div>
+					<div class="mb-4 flex justify-between">
+						<div class="w-1/2 mr-2">
+							<label class="block text-gray-700 text-sm font-bold mb-2"
+								for="publishername"> 학습 기간 </label> <input
+								th:value="${studyGroupChk.study_duration}"
+								class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="study_month" type="text" placeholder=""disabled>
+						</div>
+						<div class="w-1/2 ml-2">
+							<label class="block text-gray-700 text-sm font-bold mb-2"
+								for="publishercode"> 그룹 제한 인원 </label> <input
+								th:value="${studyGroupChk.game_subpercount}"
+								class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="game_subpercount" type="text" placeholder=""disabled>
+						</div>
+					</div>
+					<div class="mb-4 flex justify-between">
+						<div class="w-1/2 mr-2">
+							<label class="block text-gray-700 text-sm font-bold mb-2"
+								for="publishername"> 그룹 가입 승인 인원 </label> <input
+								th:value="${studyGroupChk.studynum}"
+								class="shadow appearance-none border rounded w-full py-2 px-3 mr-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="studynum" type="text" placeholder=""disabled>
+						</div>
+						<div class="w-1/2 ml-2">
+							<label class="block text-gray-700 text-sm font-bold mb-2"
+								for="publishercode"> </label> <input
+								
+								class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+								id="" type="hidden" placeholder=""disabled>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p class="mt-10 mb-3">그룹가입내역</p>
+			<div id="ajaxTbl">
+				<table class="w-full text-sm text-left text-gray-500 ">
+					<thead class="text-xs text-gray-700 uppercase bg-gray-100 ">
+						<tr>
+							<th scope="col" class="py-3 px-6">No</th>
+							<th scope="col" class="py-3 px-6">학생 이름</th>
+							<th scope="col" class="py-3 px-6">연락처</th>
+							<th scope="col" class="py-3 px-6">이메일</th>
+							<th scope="col" class="py-3 px-6">가입일자</th>
+
+						</tr>
+					</thead>
+					<tbody id="groupMemberList">
+						<tr class="bg-white border-b"
+							th:each="memberList:${groupMemberList}">
+							<td class="py-4 px-6 " th:text="${memberList.rn}"></td>
+							<td class="py-4 px-6" th:text="${memberList.member_name}">김춘추</td>
+							<td class="py-4 px-6" th:text="${memberList.member_tel}">연락처</td>
+							<td class="py-4 px-6" th:text="${memberList.member_email}">이메일</td>
+							<td class="py-4 px-6"
+								th:text="${#dates.format(memberList.student_confirmdate, 'yyyy-MM-dd')}">가입일자</td>
+
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="flex justify-center my-4"
+					th:if="${paging} and ${totalCnt > 0}">
+					<!-- pageNumber는 첫 page 와 끝 page 를 설정해줌 -->
+					<th:block th:if="paging.startPage"
+						th:each="pageNumber : ${#numbers.sequence(paging.startPage, paging.endPage)}">
+						<!--시퀸스로 page 의 number 를 규격에 맞에 생성 , on click 할 때 page 의 정보를 넘김 -->
+						<button type="button"
+							class=" text-black px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 mr-2"
+							th:text="${pageNumber}"
+							th:onclick="changePage([[${pageNumber}]])"></button>
+					</th:block>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+<script>
+	function selectBtn() {
+		let studyKey = $("#study_key").val();
+
+		$.ajax({
+			url : "studyGroupSelectDetail",
+			data : {
+				study_key : studyKey
+			}, // 
+			type : "POST",
+			success : function(response) {
+				$("#tableid").replaceWith(response);
+				console.log("성공");
+			}
+		});
+
+		$.ajax({
+			url : "studyGroupSelectDetail1",
+			data : {
+				study_key : studyKey
+			},
+			type : "POST",
+			success : function(response) {
+	                // 그룹 가입 승인 인원이 없을 때
+	                $("#ajaxTbl").replaceWith(response);
+	                console.log("성공");
+	                console.log(studyKey);
+			}
+		})
+	}
+	function changePage(currentPage){
+		let studyKey = $("#study_key").val();
+		$.ajax({
+			url:"onload",
+			data:{study_key : studyKey,currentPage},
+			type:"GET",
+			success:function(response){
+				$("#ajaxTbl").replaceWith(response);
+			}
+				
+		});
+	}
+</script>
+
+</html>

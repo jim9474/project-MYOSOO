@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습자료 등록</title>
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+    <script>
+	    function approveJoin() {
+	        // 선택된 체크박스의 값 가져오기
+	        var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+	        var selectedCheckboxes = [];
+	
+	        checkboxes.forEach(function(checkbox) {
+	            var studyKey = parseInt(checkbox.parentElement.querySelector('input[name="study_key"]').value);
+	            selectedCheckboxes.push({ sttmemberKey: checkbox.value, studyKey: studyKey });
+	        });
+	
+	        // 선택된 체크박스가 없으면 알림 표시
+	        if (selectedCheckboxes.length === 0) {
+	            alert('가입승인할 학생을 선택해주세요.'); 
+	            return;
+	        }
+	
+	        // 선택된 항목의 member_key와 study_key를 배열 형태로 전달하여 페이지 이동
+	        var form = document.createElement('form');
+	        form.method = 'POST';
+	        form.action = 'approveJoin';
+	
+	        selectedCheckboxes.forEach(function(item) {
+	            var input1 = document.createElement('input');
+	            input1.type = 'hidden';
+	            input1.name = 'checkboxes';
+	            input1.value = item.sttmemberKey;
+	            form.appendChild(input1);
+	
+	            var input2 = document.createElement('input');
+	            input2.type = 'hidden';
+	            input2.name = 'study_key';
+	            input2.value = item.studyKey;
+	            form.appendChild(input2);
+	        });
+	
+	        document.body.appendChild(form);
+	        form.submit();
+	    }
+	</script>
+    <style>
+        table {
+            border-collapse: separate;
+            border-spacing: 0 8px; /* 각 셀 사이의 수직 간격 설정, 필요에 따라 조절하세요 */
+        }
+
+        th, td {
+            border-bottom: 1px solid #e5e7eb; /* 각 셀의 하단에 구분선을 추가합니다 */
+        }
+
+        th, td {
+            border-right: 1px solid #e5e7eb; /* 각 th 요소의 오른쪽 테두리를 추가하여 구분선을 만듭니다 */
+        }
+
+        th, td:last-child {
+            border-right: none; /* 마지막 th 요소에는 오른쪽 테두리를 추가하지 않습니다 */
+        }
+    </style>
+</head>
+<body>
+	<!-- header -->
+   	<div class="header"><th:block th:replace="~{fragments/header::headerFragment}"></th:block></div>
+    <div class="bg-blue-100 p-6 max-w-4xl mx-auto rounded-lg">      
+        <div class="pt-4">
+            <form action="studyJoinApproval">
+            	<div class="flex items-center justify-between my-4">
+	                <div class="flex items-center">
+	                    <select name="study_key" id="search" class="ml-2">
+						    <option selected disabled>학습그룹 선택하기</option>
+						    <th:block th:each="study : ${sjaForm}">
+						        <option th:value="${study.study_key}" th:text="${study.study_name}"></option>
+						    </th:block>
+						</select>
+	                </div>
+	                <div>
+	                    <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded">조회하기</button>
+	                </div>
+	            </div>
+	            <div class="flex items-center justify-between my-4">
+	            	<p th:text="${study.game_name} == null? '*게임콘텐츠명 : ':'*게임콘텐츠명 : '+${study.game_name} "></p>
+	            	<p th:text="'*구독가능 인원 : ' + ${study.study_maxperson} + '명'"></p>
+	            	<p th:text="'*기존승인 인원 : ' + ${study.study_appperson} + '명'"></p>
+	            </div>
+	            <div>
+	            	<p>신규가입 신청 현황</p>
+	            	<p th:if="${msg != null}" th:text="${msg}"></p>
+	            </div>
+            </form>
+            <table class="w-full text-sm text-center text-gray-500 mb-4">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="py-3 px-0 w-28 h-12">NO</th>
+                        <th scope="col" class="py-3 px-0 w-28 h-12">학생이름</th>
+                        <th scope="col" class="py-3 px-0 w-28 h-12">학생연락처</th>
+                        <th scope="col" class="py-3 px-0 w-28 h-12">승인요청일자</th>
+                        <th scope="col" class="py-3 px-0 w-28 h-12">승인여부</th>
+                    </tr>
+                </thead>
+                <tbody>
+                	<th:block th:each="study : ${joinApprovalStudy}">
+                		<th:block th:if="${study.student_confirm == 0}">
+		                    <tr class="bg-white border-b ">
+		                        <td class="py-4 px-0 w-24 h-28"><p class="w-100% break-all" th:text="${study.rownum}"></p></td>
+		                        <td class="py-4 px-0 w-24 h-28"><p class="w-100% break-all" th:text="${study.member_name}"></p></td>
+		                        <td class="py-4 px-0 w-24 h-28"><p class="w-100% break-all" th:text="${study.member_tel}"></p></td>
+		                        <td class="py-4 px-0 w-24 h-28"><p th:text="${#dates.format(study.student_date, 'yyyy.MM.dd')}"></p></td>
+		                        <td>
+		                        	<input class="ml-6" type="checkbox" id="checkbox1" name="checkboxes" th:value="${study.sttmember_key}">
+		                        	<input type="hidden" name="study_key" th:value="${study.study_key}">	
+		                        </td>
+		                    </tr>
+	                    </th:block>
+	             	</th:block>
+                </tbody>
+            </table>
+            <div class="text-center">
+			    <button type="button" class="bg-blue-500 text-white px-4 py-1 rounded" th:onclick="approveJoin()">승인하기</button>
+			</div>
+            
+        </div>
+    </div>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+</html>

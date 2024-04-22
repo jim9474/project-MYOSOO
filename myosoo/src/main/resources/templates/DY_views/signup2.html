@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+<meta charset="UTF-8">
+<title>회원가입 페이지</title>
+
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+	th:src="@{js/jquery-3.7.1.min.js}"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+    </style>
+</head>
+<body class="bg-blue-100">
+    <div class="max-w-md mx-auto bg-white p-6 mt-10 rounded shadow-lg">
+    	<form id="memberJoin" action="/memberJoin" method="post" onsubmit="return validateForm()">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-lg font-semibold">인증 정보</h2>
+            <span class="text-xs text-red-500">*필수입력</span>
+        </div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_name">이름</label>
+                <span class="text-xs text-red-500 ml-2 mt-1">*</span>
+            </div>
+            <input type="text" id="member_name" name="member_name"
+                class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                th:value="${member_name}" readonly>
+        </div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_email">이메일</label>
+                <span class="text-xs text-red-500 ml-2 mt-1">*</span>
+            </div>
+            <input type="email" id="member_email" name="member_email"
+                class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                th:value="${member_email}" readonly>
+        </div>
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-lg font-semibold">정보 입력</h2>
+        </div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_id">아이디</label>
+                <span class="text-xs text-red-500 ml-2 mt-1">*</span>
+            </div>
+            <div class="flex flex-between gap-4">
+                <input type="text" id="member_id" name="member_id" 
+                    class="w-3/4 border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                    placeholder="아이디" onkeyup="checkMemId()">
+                <button type="button" onclick="idCheckBtn()"
+                    class="w-1/4 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none">중복
+                    확인</button>
+            </div>
+            <label id="idChkMessage" ></label>
+        </div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_pw">비밀번호</label>
+                <span class="text-xs text-red-500 ml-2 mt-1">*</span>
+            </div>
+            <input type="password" id="member_pw" name="member_pw"
+    			class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+    			placeholder="비밀번호" onkeyup="checkPw()">
+    		
+    		<span id="pwChkMessage" class="text-red-500"></span>
+        </div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="password-confirm">비밀번호 확인</label>
+                <span class="text-xs text-red-500 ml-2 mt-1">*</span>
+            </div>
+            <input type="password" id="password-confirm"
+    			class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+    			placeholder="비밀번호 확인" onkeyup="checkPassword()">
+    			<span id="password-error" class="text-red-500"></span>
+        </div>
+        <div class="mb-4">
+            <div class="mb-2 flex">
+                <label class="text-sm font-medium">핸드폰 번호</label>
+                <span class="text-xs text-red-500 ml-2 mt-1">*</span>
+            </div>
+            <div class="flex mt-2">
+                <input type="text" id="member_tel" name="member_tel"
+                    class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                    placeholder="전화번호" onkeyup="phoneChk()">
+                    
+
+            </div>
+            <span id="phone-error" class="text-red-500"></span>
+        </div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_birth">생년월일</label>
+                <span class="text-xs text-red-500 ml-2 mt-1">*</span>
+            </div>
+
+            <input type="text" id="member_birth" name="member_birth"
+                class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                placeholder="생년월일 선택">
+
+            <div class="mb-4">
+                <div class="flex mt-2">
+                    <label class="block text-sm font-medium mt-1" for="member_mikey">회원 구분</label>
+                    <span class="text-xs text-red-500 ml-2 mt-2">*</span>
+                </div>
+                <select name="member_mikey"
+                    class="w-full border-2 border-blue-300 px-3 py-2 mt-2 rounded focus:outline-none focus:border-blue-500"
+                    id="member_mikey">
+                    <option value="30">일반회원</option>
+                    <option value="20">학습자</option>
+                    <option value="10">교육자</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <div class="flex">
+                    <label class="block text-sm font-medium mb-1">성별</label>
+                    <span class="text-xs text-red-500 ml-2 mt-1">*</span>
+                </div>
+                <div class="flex">
+                    <label class="inline-flex items-center mr-4">
+                        <input type="radio" name="member_gender" id="member_gender" value="m" class="mr-1" checked>
+                        <span class="text-sm">남</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="member_gender" id="member_gender" value="f" class="mr-1">
+                        <span class="text-sm">여</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none">회원
+                가입</button>
+            </form>
+        </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script type="text/javascript">
+//아이디, 비밀번호, 핸드폰 번호 정규표현식
+var idPattern = /^[a-zA-Z0-9]{6,}$/;
+var pwPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,10}$/;
+var phonePattern = /^010\d{8}$/;
+
+// 달력
+flatpickr("#member_birth", {
+    dateFormat: "Ymd",
+    maxDate: "today",
+    locale: "ko"
+});
+
+// 아이디 정규표현식 검증
+function checkMemId() {
+    var memId = $("#member_id").val();
+    if (!idPattern.test(memId)) {
+        $("#idChkMessage").css("color", "red").text("영문자와 숫자만 포함해 최소 6글자 이상");
+    } else {
+        $("#idChkMessage").text("");
+    }
+}
+
+// 비밀번호 정규표현식 검증
+function checkPw() {
+    var memPw = $("#member_pw").val();
+    if (!pwPattern.test(memPw)) {
+        $("#pwChkMessage").css("color", "red").text("영문,숫자,특수문자 포함 8~10자");
+    } else {
+        $("#pwChkMessage").text("");
+    }
+}
+
+// 비밀번호 일치 확인
+function checkPassword() {
+    var password = $("#member_pw").val();
+    var confirmPassword = $("#password-confirm").val();
+    if (password != confirmPassword) {
+        $("#password-error").css("color", "red").text("비밀번호가 일치하지 않습니다");
+    } else {
+        $("#password-error").text("");
+    }
+}
+
+// 핸드폰 번호 정규표현식 검증
+function phoneChk() {
+    var phoneNum = $("#member_tel").val();
+    if (!phonePattern.test(phoneNum)) {
+        $("#phone-error").css("color", "red").text("올바른 번호가 아닙니다");
+    } else {
+        $("#phone-error").text("");
+    }
+}
+
+// 아이디 중복 확인
+function idCheckBtn() {
+	
+    let member_id = $("#member_id").val();
+    
+// 아이디 입력란이 비어 있는지 확인
+    if (member_id.trim() === '') {
+        $("#idChkMessage").css("color", "red").text("아이디를 입력해주세요");
+        return; // 함수 종료
+    }
+    $.ajax({
+        url: '/signupIdCheck',
+        method: 'POST',
+        data: { "member_id": member_id },
+        success: function(response) {
+            if (response == 0) {
+                $("#idChkMessage").css("color", "blue").text("사용 가능한 아이디입니다");
+            } else {
+                $("#idChkMessage").css("color", "red").text("이미 사용중인 아이디입니다");
+            }
+        }
+    });
+}
+
+// 폼 유효성 검사
+function validateForm() {
+    var isValid = true;
+    var requiredFields = $("input[type='text'], input[type='password'], input[type='email']");
+    requiredFields.each(function() {
+        if (!$(this).val()) {
+            isValid = false;
+            return false; // 유효성 검사 중단
+        }
+    });
+
+    if (!isValid) {
+        alert("모든 정보를 정확히 입력해 주세요");
+    }
+
+    return isValid;
+}
+</script>
+
+</html>

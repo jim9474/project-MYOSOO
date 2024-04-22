@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <th:block th:replace="~{fragments/configure::configure}"></th:block>
+  </head>
+  <body>
+    <!-- header -->
+    <div class="header">
+      <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+    </div>
+	<!-- 문의 내용 -->
+     <div class="bg-white p-8 rounded-md w-full max-w-4xl mx-auto mt-12">
+	        <div class="mb-4">
+	            <table class="w-full text-left text-gray-500">
+	                <tbody>
+						<tr class="border-t border-b border-gray-300">
+	                        <th class="py-4 px-6 font-medium font-semibold bg-gray-50 w-1/6">제목</th>
+	                        <td class="py-4 px-6 font-medium w-5/6" th:attr="data-makey=${board.board_title}" th:text="${board.board_title}"></td>
+	                    </tr>
+	                    <tr class="border-b border-gray-300">
+	                        <th class="py-4 px-6 bg-gray-50 w-1/6">작성일자</th>
+	                        <td class="py-4 px-6 w-5/6" th:text="${board.board_regdate}" data-format="date"></td>
+	                    </tr>
+						<tr class="border-b border-gray-300">
+	                        <th class="py-4 px-6 bg-gray-50 w-1/6">내용</th>
+	                        <td class="py-4 px-6 whitespace-pre-line w-5/6" th:utext="${#strings.replace(board.board_content, '\n', '<br/>')}"></td>
+	                    </tr>
+	                </tbody>
+	            </table>
+	        </div>
+        <!-- 관리자 답변 섹션 -->
+        <div class="mt-10">
+            <h2 class="font-medium font-semibold mb-4">운영자 답변</h2>
+           <!-- 답변 -->
+	            <div class="space-y-4">
+					<!-- 운영자 답변이 없는 경우에만 출력 -->
+					<th:block th:if="${#lists.isEmpty(inquiry)}">
+					    <p class="text-gray-600 text-sm">운영자가 문의를 확인 중입니다. 답변을 잠시만 기다려 주세요. </p>
+					</th:block>
+					<th:block th:each="inquiry : ${inquiry}">
+		        		<div class="inquiry-response border-t border-gray-200 pt-4">
+		            		<p class="font-semibold">
+		                <span class="text-gray-600 text-sm" th:text="${inquiry.inquiry_regdate}" data-format="date">날짜</span>
+	            			</p>
+	        			<div class="text-gray-600 text-sm mb-4" th:utext="${#strings.replace(inquiry.inquiry_content, '\n', '<br/>')}">관리자 답변 내용</div>
+	        				</div>
+	   	 			</th:block>
+	          </div>
+        </div>
+        <input type="hidden" id="memberMikey" th:value="${session.member_mikey}" />
+        <div class="flex justify-end">
+		<button id="deleteButton" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+		    내 문의글 삭제 
+		</button>
+		</div>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+  </body>
+</html>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const board_key = urlParams.get('board_key'); // URL에서 board_key 값을 가져옵니다.
+
+    // 삭제 기능 
+	document.getElementById("deleteButton").addEventListener("click", function() {
+	if (confirm("이 문의글을 정말 삭제하시겠습니까? 댓글도 함께 삭제 됩니다!")) {
+		
+		const urlParams = new URLSearchParams(window.location.search);
+		const board_key = urlParams.get('board_key'); // URL에서 board_key 값을 가져옵니다.
+
+			fetch(`/deleteMyQnA/${board_key}`, {
+				method: 'DELETE',
+	            })
+	            .then(response => {
+	                if (!response.ok) throw new Error('Failed to delete the inquiry');
+	                alert("문의글과 관련된 댓글이 성공적으로 삭제되었습니다.");
+	                window.location.href = '/myQnAList'; // 성공적으로 삭제 후 목록 페이지로 이동
+	            })
+	            .catch(error => {
+	                console.error('Error:', error);
+	                alert("문의글 삭제에 실패했습니다.");
+	            });
+	    	}
+		});
+    
+    	// 날짜 형식 
+		document.querySelectorAll('[data-format="date"]').forEach(element => {
+		    const originalText = element.textContent.trim();
+		    
+		    // 원본 텍스트에서 날짜 부분만 추출
+		    const parts = originalText.split(' ');
+		    const year = parts[5];
+		    const month = {
+		        Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+		        Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+		    }[parts[1]];
+		    const day = parts[2].padStart(2, '0');
+		
+		    const formattedDate = `${year}-${month}-${day}`;
+		    element.textContent = formattedDate;
+		});
+    
+});
+</script>

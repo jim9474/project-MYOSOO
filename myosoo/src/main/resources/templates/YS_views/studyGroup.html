@@ -1,0 +1,121 @@
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>메인화면</title>
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+   th:src="@{js/jquery-3.7.1.min.js}"></script>
+
+</head>
+<body>
+   <!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+    <div class="bg-blue-100 p-6 max-w-4xl mx-auto rounded-lg mt-10">
+               
+        <div class="pt-4">
+ 			<div class="text-2xl">학습 그룹 등록(게임 콘텐츠 검색)</div>
+            <div class="flex items-center justify-between my-3">
+                <div class="flex items-center">
+                    <label class="block text-lg font-medium " for="period">게임 콘텐츠</label>
+                </div>
+                <div>
+                    <button type="button" class="bg-blue-500 text-white px-4 py-1 rounded " onclick="studyGroupSelectBox()">조회하기</button>
+                </div>
+            </div>
+            <form action="studyGroupInView">
+            <table class="w-full text-sm text-left text-gray-500 ">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+                    <tr >
+                        <th scope="col" class="py-3 px-6"></th>
+                        <th scope="col" class="py-3 px-6">게임컨텐츠명</th>
+                        <th scope="col" class="py-3 px-6">학습 구독기간</th>
+                        <th scope="col" class="py-3 px-6">구독 개월</th>
+                        <th scope="col" class="py-3 px-6">학습가능인원</th>
+                        <th scope="col" class="py-3 px-6">그룹배정인원</th>
+                        <th scope="col" class="py-3 px-6">잔여M/M</th>
+                        
+                    </tr>
+                </thead>
+                <tbody id="tableid">
+                    <tr 
+                    	th:each="groupList:${gameGroupListDetail}" class="bg-white border-b  ">
+                        <td ><input class="ml-6" type="radio" required id="game_key" name="game_key" th:value="${groupList.game_key}"></td>
+                        <input type="hidden" id="member_key" name="member_key" th:value="${groupList.member_key}" >
+                        <td th:text="${groupList.game_name}" class="py-4 px-6"></td>
+                        <td th:text="${groupList.totaldate}" class="py-4 px-6">숙제내용1</td>
+                        <td id="game_submonth" th:text="${groupList.game_submonth}"class="py-4 px-6">그룹</td>
+                        <td th:text="${groupList.game_subpercount}" class="py-4 px-6">레벨1</td>
+                        <td th:text="${groupList.studynum}" class="py-4 px-6">제출기한1</td>
+                        <td id="mm" th:text="${groupList.mm}-(${groupList.studynum}*${groupList.game_submonth})" class="py-4 px-6">전송일자</td>
+                     
+                    </tr>
+                    
+                </tbody>
+            </table>
+
+            <div class="flex justify-center">
+                <button id="submitBtn" type="submit" class="bg-blue-500 text-white px-4 py-1 rounded my-5">학습 그룹 상세 입력</button>
+            </div>
+          </form>
+        </div>
+
+    </div>
+    
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+<script >
+
+$(document).ready(function() {
+    // 초기에는 다른 버튼들을 비활성화
+    $("#submitBtn").prop("disabled", true);
+});
+let member_key=0;
+let game_key=0;
+const data={
+	game_key,
+	member_key
+};
+
+	function studyGroupSelectBox(){
+		data.member_key=$("#member_key").val();
+		data.game_key= $("#game_key").val();
+		console.log($("#game_key").val());
+		console.log($("#member_key").val());
+		console.log(parseInt($("#mm").text()));
+		studyGroupAjax();
+	}
+	
+	function studyGroupAjax() {
+	    $.ajax({
+	        type: "POST",
+	        url: "studyGroup",
+	        contentType: 'application/json',
+	        data: JSON.stringify(data),
+	        success: function(response) {
+	            $("#tableid").replaceWith(response);
+	            console.log("성공");
+
+	            $('input[name="game_key"]').each(function() {
+	            	
+	                var remainingMM = $(this).closest('tr').find('#mm').text(); // 혹은 서버에서 받은 데이터에서 값을 가져와도 됩니다.
+
+	                // 잔여 M/M 값이 0 이상인 경우에만 라디오 버튼 활성화
+	                if (remainingMM !== "0"&& remainingMM !== "1"&& remainingMM !== "2"&& remainingMM !== "3") { // 0도 포함되어야 함
+	                	$("#submitBtn").removeAttr("disabled");
+	                } else {
+	                    $(this).prop("disabled", true);
+	                }
+	            });
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("에러:", error);
+	        }
+	    });
+	}
+
+
+
+</script>
+</html>

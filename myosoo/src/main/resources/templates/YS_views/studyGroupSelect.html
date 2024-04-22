@@ -1,0 +1,194 @@
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>메인화면</title>
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+	th:src="@{js/jquery-3.7.1.min.js}"></script>
+
+</head>
+
+<body>
+	<!-- header -->
+	<th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+	<div class="bg-blue-100 p-6 max-w-3xl mx-auto rounded-lg">
+
+		<div class="pt-4">
+
+			<div class="flex items-center justify-between my-4">
+				<div class="flex items-center">
+					<label class="block text-sm font-medium mb-1 " for="period">학습
+						그룹</label>
+				</div>
+				<div>
+					<button onclick="selectBtn()"
+						class="bg-blue-500 text-white px-4 py-1 mr-4 rounded">조회하기</button>
+					<button onclick="updateBtn()" id="updateBtn"
+						class="bg-blue-500 text-white px-4 py-1 mr-4 rounded">변경하기</button>
+					<button onclick="delectBtn()" id="delectBtn"
+						class="bg-blue-500 text-white px-4 py-1 rounded">삭제하기</button>
+				</div>
+			</div>
+			<form id="studyTable" action="">
+				<table class="w-full text-sm text-left text-gray-500 ">
+					<thead class="text-xs text-gray-700 uppercase bg-gray-100 ">
+						<tr>
+							<th scope="col" class="py-3 px-6"></th>
+							<th scope="col" class="py-3 px-6">학습 그룹명</th>
+							<th scope="col" class="py-3 px-6">게임 콘텐츠명</th>
+							<th scope="col" class="py-3 px-6">그룹 T/O</th>
+							<th scope="col" class="py-3 px-6">구독기간</th>
+							<th scope="col" class="py-3 px-6">달성레벨</th>
+							<th scope="col" class="py-3 px-6">가입학생수</th>
+						</tr>
+					</thead>
+
+
+					<tbody id="tableid">
+						<tr class="bg-white border-b"
+							th:each="groupSelectList:${getSelectGroupList}">
+							<td><input type="radio" id="study_key" name="study_key"
+								th:value="${groupSelectList.study_key}"
+								class="form-checkbox h-5 w-5 text-blue-600 ml-5" required></td>
+							<td class="py-4 px-6" th:text="${groupSelectList.study_name}"></td>
+							<input type="hidden" id="member_key" name="member_key"
+								th:value="${groupSelectList.member_key}">
+							<td class="py-4 px-6" th:text="${groupSelectList.game_name}"></td>
+							<input type="hidden" id="game_key" name="game_key"
+								th:value="${groupSelectList.game_key}">
+							<td class="py-4 px-6"
+								th:text="${groupSelectList.study_maxperson}"></td>
+							<td class="py-4 px-6" th:text="${groupSelectList.totaldate}"></td>
+							<td class="py-4 px-6" th:text="${groupSelectList.study_maxlevel}"></td>
+							<td class="py-4 px-6" th:text="${groupSelectList.studynum}"></td>
+						</tr>
+					</tbody>
+
+
+				</table>
+			</form>
+			<div class="flex items-center justify-center my-5">
+				<button onclick="detailSelectBtn()" id="detailSelectBtn"
+					class="bg-blue-500 text-white px-4 py-1 mr-4 rounded">학습
+					그룹 상세 조회하기</button>
+			</div>
+		</div>
+
+
+	</div>
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+<script>
+$(document).ready(function() {
+    // 초기에는 다른 버튼들을 비활성화
+    $("#updateBtn").prop("disabled", true);
+    $("#delectBtn").prop("disabled", true);
+    $("#detailSelectBtn").prop("disabled", true);
+
+    
+});
+
+    
+	let member_key =0;
+	console.log($("#member_key").val());
+	const data={
+			member_key
+		};
+	console.log($("#member_key").val());
+	function selectBtn(){
+		$.ajax({
+			url:"studyGroupSelect",
+			type:"post",
+			data: JSON.stringify(data),
+			contentType: 'application/json',
+			success: function(response) {
+	        	$("#tableid").replaceWith(response)
+	            console.log("성공");
+	        	// 라디오 버튼 클릭 시
+	            $('input[name="study_key"]').click(function() {
+	                // 라디오 버튼이 선택되었는지 확인
+	                console.log(this);
+	                console.log(this.checked);
+	                if(this.checked){
+	                	$("#updateBtn").removeAttr("disabled");
+	                    $("#delectBtn").removeAttr("disabled");
+	                    $("#detailSelectBtn").removeAttr("disabled");
+	                }
+	                
+	                
+	            });
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("에러:", error);
+	        }
+		})
+	}
+	
+	function updateBtn(){
+		$("#studyTable").attr("action", "studyGroupUpdateAllView")
+		$("#studyTable").submit();
+	}
+	
+	function detailSelectBtn(){
+		$("#studyTable").attr("action", "studyGroupSelectDetailView")
+		$("#studyTable").submit();
+	}
+
+	function delectBtn(){
+		let study_key =$("input[name='study_key']:checked").val();
+		console.log(study_key);
+		$.ajax({
+			url:"studyGroupDelete",
+			data:{study_key:study_key},
+			method : "get",
+			success: function(response){
+				if(response === "true"){
+				//$("#tableid").replaceWith(response)
+				alert("게시글이 삭제 되었습니다.");
+				// 삭제플레그
+				$("input[name='study_key']:checked").parent().parent().remove();
+				}else{
+				alert("가입 학생이 있습니다.");
+				}
+			}
+		})
+	}
+	
+	
+/* 	
+	function updateBtn2(){
+		let member_key =$("#member_key").val();
+		var study_key = $('input[name="study_key"]:checked').val();
+		let game_key = $("#game_key").val();
+		console.log($("#member_key").val());
+		console.log(study_key);
+		const data={
+				member_key,
+				study_key,
+				game_key
+			};
+		$.ajax({
+			url:"studyGroupSelectUpdateForm",
+			type:"post",
+			data: JSON.stringify(data),
+			contentType: 'application/json',
+			success: function(response) {
+				console.log(data);
+	            console.log("성공");
+	            if(response === 'all'){
+	            	window.location.href = `studyGroupUpdateAll/?study_key=${study_key}`;
+	            } else{
+	            	window.location.href = 'studyGroupUpdate';
+	            }
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("에러:", error);
+	        }
+			
+		})
+	} */
+</script>
+
+</html>

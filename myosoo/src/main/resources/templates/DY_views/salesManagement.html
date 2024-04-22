@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+<meta charset="UTF-8">
+<title>매출조회 페이지</title>
+
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+   th:src="@{js/jquery-3.7.1.min.js}"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<style>
+          body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+</style>
+<body>
+<th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+<div class="mt-5 bg-blue-100 p-6 max-w-6xl mx-auto rounded-lg">
+        <div class="flex justify-between items-center mb-4">
+            <div class="text-lg font-semibold">매출조회</div>
+            
+        </div>
+        
+        <div id="graphModal" class="fixed inset-0 z-50 overflow-auto bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+          <div class="bg-white w-1/2 p-6 rounded-lg">
+              <div class="flex justify-end">
+                  <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                  </button>
+              </div>
+              <canvas id="modalChart" style="max-height: 400px;"></canvas>
+          </div>
+      </div>
+        
+        <div class="flex items-center justify-between mt-5">
+            <label class="block mt-1.5 text-m mr-3 font-medium mb-2.5" for="name">조회기간</label>
+             <input type="text" id="startdate" name="startdate" 
+                class="w-30 border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                placeholder="시작일">
+            <label class="block mt-1.5 ml-3 text-lg mr-3 font-medium mb-1" for="name"> ~ </label>
+            <input type="text" id="enddate" name="enddate" 
+                class="w-30 border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                placeholder="종료일">
+            <div class="ml-20 flex ">
+             <input type="radio" checked="checked" id="daily" name="unit" value="daily" class="mr-1 mt-1">
+             <label for="daily" class="mr-3 ">일 단위</label>
+             <div class="ml-2">
+                 <input type="radio" id="monthly" name="unit" value="monthly" class="mr-1 ">
+                 <label for="monthly" class="mr-3">월 단위</label>
+             </div>
+         </div>
+        </div>
+        <div class="mt-5 flex items-center justify-between">
+            <label class="block text-m font-medium mb-1" for="totalPrice">총 매출액 : <span id="totalPrice"></span>원</label>
+            <label class="block text-m  font-medium mb-1 " for="totalSales">건수 : <span id="totalCount"></span>개</label>
+            <div class="mr-2">
+            <button id="searchBtn" onclick="searchAndPaging()" class="flex-none bg-blue-500 text-white font-semibold  px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50" style="height: 40px;">
+                검색
+            </button>
+            <button id="graphBtn" class="flex-none ml-5 bg-blue-500  text-white font-semibold  px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50" style="height: 40px;">
+                그래프
+            </button> 
+            </div>  
+           
+        </div>
+        
+        
+        
+        <div id="t_body" class="border-t-2 pt-4 mt-5">
+ 
+            <table class="w-full text-sm text-center text-gray-500 mb-4">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+              <tr>
+                  <th scope="col" class="py-3 px-6">No</th>
+                  <th scope="col" class="py-3 px-6">일 / 월</th>
+                  <th scope="col" class="py-3 px-6">건수</th>
+                  <th scope="col" class="py-3 px-6">매출금액</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr th:each="payment, iterStat : ${listPayment}">
+                  <td th:text="${iterStat.index + 1}"></td>
+                 <td th:unless="${payment.payment_month}" 
+                   th:text="${#dates.format(payment.payment_date, 'yyyy-MM-dd')}"
+                     onclick="redirectToDetail(this.textContent, 'day')">
+
+               </td>
+               
+               <td th:if="${payment.payment_month}" 
+                   th:text="${payment.payment_month}"
+                   onclick="redirectToDetail(this.textContent, 'month')">
+               </td>
+                  <td id="totCount" th:text="${payment.total_count + '건'}" class="hover:cursor-pointer"></td>
+                  <td id="totPrice" th:text="${payment.total_price + '원'}"></td>
+              </tr>
+         </tbody>
+      </table>
+<nav th:if="${dPaging}"
+               class="flex items-center flex-column flex-wrap md:flex-row justify-center pt-4"
+               aria-label="Table navigation">
+               
+               <ul class="inline-flex  -space-x-px rtl:space-x-reverse text-sm h-8">
+                  <li>
+                     <button th:disabled="${dPaging.currentPage}== 1"
+                        th:onclick="getPointTable(currentPage-1)"
+                        class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Prev</button>
+                  </li>
+                  <th:block
+                     th:each="num : ${#numbers.sequence(dPaging.startPage,dPaging.endPage)}">
+                     <li>
+                        <button onclick="searchAndPaging()"
+                           th:onclick="searchAndPaging([[${num}]])" th:text="${num}"
+                           th:classappend="${num} == ${dPaging.currentPage}? 'font-bold' "
+                           class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</button>
+                     </li>
+                  </th:block>
+
+                  <li>
+                     <button th:disabled="${dPaging.currentPage} == ${dPaging.endPage}"
+                        th:onclick="getPointTable(currentPage+1)"
+                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</button>
+                  </li>
+               </ul>
+            </nav>
+        
+        </div>
+    </div>
+    
+    
+    
+    
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script type="text/javascript">
+var modalChart = null; // 모달 차트 객체를 저장할 변수
+//달력
+flatpickr("#startdate, #enddate", {
+    dateFormat: "Ymd",
+    maxDate: "today",
+    locale: "ko"
+});
+
+//라디오 버튼 클릭 시 다른 라디오 버튼의 선택 해제
+document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+    radio.addEventListener('click', function() {
+        if (this.value === 'daily') {
+            document.getElementById('monthly').checked = false;
+        } else if (this.value === 'monthly') {
+            document.getElementById('daily').checked = false;
+        }
+    });
+}); 
+
+//검색 버튼 클릭 시 검증 및 처리
+function searchAndPaging(num){
+    var startDate = document.getElementById('startdate').value;
+    var endDate = document.getElementById('enddate').value;
+    var unit = document.querySelector('input[type="radio"]:checked');
+    
+    
+    console.log("startDate: "+startDate+", endDate: "+endDate +", unit: "+unit);
+    console.log("unit", document.querySelector('input[type="radio"]:checked'))
+    
+    if (!startDate || !endDate) {
+        alert('조회기간을 입력해주세요.');
+        return;
+    }
+    
+    
+ // AJAX를 사용하여 서버에 검색 요청을 보냅니다.
+    $.ajax({
+        url: '/searchSales',
+        method: 'GET',
+        data: {
+            startDate: startDate,
+            endDate: endDate,
+            dayOrMonth : unit.value,
+            currentPage : num
+        },
+        success: function(data) {
+           var $data = $(data);
+           var totalPrice = 0;
+           var totalCount = 0;
+           
+           $data.find('tbody tr').each(function() {
+                var price = parseInt($(this).find('td:nth-child(4)').text().trim());
+                var count = parseInt($(this).find('td:nth-child(3)').text().trim());
+                console.log("price, count", price, ",",count)
+                
+                totalPrice += price;
+                totalCount += count;
+            });
+           
+           $('#totalPrice').text(totalPrice);
+            $('#totalCount').text(totalCount);
+           
+            $('#t_body').replaceWith(data);
+            console.log(data);
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX 요청 오류:', error);
+        }
+    });
+ 
+
+}
+
+//모달 열기
+function openModal() {
+    document.getElementById('graphModal').classList.remove('hidden');
+}
+
+// 모달 닫기
+function closeModal() {
+    document.getElementById('graphModal').classList.add('hidden');
+    
+    // 모달을 닫을 때 차트 파괴
+    if (modalChart) {
+        modalChart.destroy();
+    }
+}
+
+// 모달 닫기 버튼에 이벤트 리스너 추가
+document.getElementById('closeModalBtn').addEventListener('click', function () {
+    closeModal();
+});
+
+// 모달 영역 외의 클릭으로 모달 닫기
+document.getElementById('graphModal').addEventListener('click', function (event) {
+    if (event.target === this) {
+        closeModal();
+    }
+});
+
+// 그래프 버튼 클릭 시 검증 및 처리
+document.getElementById('graphBtn').addEventListener('click', function () {
+    var startDate = document.getElementById('startdate').value;
+    var endDate = document.getElementById('enddate').value;
+    var unit = document.querySelector('input[type="radio"]:checked');
+
+    if (!startDate || !endDate) {
+        alert('조회기간을 입력해주세요.');
+        return;
+    }
+
+    $.ajax({
+        url: '/searchSales',
+        method: 'GET',
+        data: {
+            startDate: startDate,
+            endDate: endDate,
+            dayOrMonth: unit.value
+        },
+        success: function (data) {
+            var labels = [];
+            var prices = [];
+            var counts = [];
+
+            // 데이터 파싱 및 정렬
+            var sortedData = $(data).find('tbody tr').toArray().sort(function (a, b) {
+                var dateA = new Date($(a).find('td:nth-child(2)').text().trim());
+                var dateB = new Date($(b).find('td:nth-child(2)').text().trim());
+                return dateA - dateB;
+            });
+
+            // 정렬된 데이터로부터 날짜와 매출액, 건수 추출
+            sortedData.forEach(function (row) {
+                var label = $(row).find('td:nth-child(2)').text().trim(); // 일/월
+                var price = parseInt($(row).find('#totPrice').text().trim().replace('원', '')); // 매출금액
+                var count = parseInt($(row).find('#totCount').text().trim().replace('건', '')); // 건수
+
+                labels.push(label); // 일/월을 x축으로 설정
+                prices.push(price); // 매출금액을 y축으로 설정
+                counts.push(count); // 건수를 y축으로 설정
+            });
+
+            // 모달에 그래프 그리기 함수 호출
+            drawModalChart(labels, prices, counts);
+
+            // 모달 열기
+            openModal();
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX 요청 오류:', error);
+        }
+    });
+});
+
+//모달에 그래프 그리기 함수
+function drawModalChart(labels, prices, counts) {
+    var ctx = document.getElementById('modalChart').getContext('2d');
+    
+    // 차트가 이미 있다면 파괴
+    if (modalChart) {
+        modalChart.destroy();
+    }
+    
+    modalChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                    label: '매출액',
+                    data: prices,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                },
+                {
+                    label: '건수',
+                    data: counts,
+                    fill: false,
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+//세부 정보 페이지로 이동하는 함수
+function redirectToDetail(selectedDate, dayOrMonth) {
+    console.log(selectedDate, dayOrMonth)
+   // 조회 페이지 URL 생성
+    var url = "/detail?selectedDate=" + selectedDate + "&dayOrMonth=" + dayOrMonth;
+    // 생성된 URL로 이동
+    window.location.href = url;
+}
+
+</script>
+</html>

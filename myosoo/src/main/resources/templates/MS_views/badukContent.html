@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>바둑 콘텐츠</title>
+<link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet">
+ <th:block th:replace="~{fragments/configure::configure}"></th:block>   
+<script
+    src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+.card-table {
+    width: auto; /* 테이블 너비 자동 조정 */
+}
+
+.card-table th,
+.card-table td {
+    padding: 10px 15px; /* 셀 안의 패딩 조정 */
+}
+
+.card-table th {
+    background-color: #f3f4f6; /* 헤더 배경색 */
+    color: #6b7280; /* 헤더 텍스트 색상 */
+}
+
+.card-table td {
+    background-color: #ffffff; /* 셀 배경색 */
+}
+
+/* 이미지 스타일 */
+.card-image-container {
+    width: 150px; /* 이미지 컨테이너의 너비를 고정 */
+    height: 100%; /* 이미지 컨테이너의 높이를 100%로 설정 */
+    display: flex; /* 이미지 컨테이너를 flex 컨테이너로 설정 */
+    align-items: center; /* 이미지를 세로 중앙 정렬 */
+}
+
+
+.card-image img {
+    width: 150px; /* 이미지의 너비를 자동으로 설정하여 이미지 컨테이너에 맞춤 */
+    height: auto; /* 이미지의 높이를 자동으로 설정하여 이미지 컨테이너에 맞춤 */
+    max-width: 100%; /* 이미지가 컨테이너를 넘어가지 않도록 설정 */
+    max-height: 100%; /* 이미지가 컨테이너를 넘어가지 않도록 설정 */
+    margin-left : 100px;
+    object-fit: contain; /* 이미지가 변형되지 않고 비율을 유지하며 컨테이너에 맞게 조정됨 */
+}
+</style>
+</head>
+<body>
+<!-- header -->
+    <div th:replace="~{fragments/header :: headerFragment}"></div>
+    <div class="text-gray-700" style="width: 10%; margin-left: 500px;">
+    <span id="totalgameCount" th:text="'총 항목 수: ' + ${totalgameCount} + ' 개'">총 항목 수: 0개</span>
+    
+</div>
+    
+<div class="mx-auto sm:px-4 sm:px-8 py-4 " style="width: 67%; margin: 0 auto;">
+    <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+        <table class="leading-normal w-full">
+            <!-- 테이블 헤더 -->
+            <thead>
+                <tr>
+                   <th class="px-5 py-3 w-20 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">No</th>
+                   <th class="px-5 py-3 w-50 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">상품 이미지</th>
+                    <th class="px-5 py-3 w-100 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">상품명</th>
+                    <th class="px-5 py-3 w-100 border-b-2 border-gray-200 bg-gray-100 text-center text-base font-semibold text-gray-600 uppercase tracking-wider">학습내용</th>
+                </tr>
+            </thead>
+            <!-- 테이블 내용 -->
+            <tbody id="gameTableBody">
+                <tr th:each="game, rowNumber : ${game}">
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+                        <!-- 번호 열 -->
+                        <span th:text="${rowNumber.index + 1}"></span>
+                    </td>
+                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+                <!-- 상품 이미지 표시 -->
+               <div class="flex justify-center items-center">
+                   <img th:src="'data:image/png;base64,' + ${game.game_imgEncod}" alt="image" class="w-50 h-20 object-cover rounded" >
+                    <span th:text="${game.game_name}" class="text-gray-900 whitespace-no-wrap"></span>
+                    <!-- 텍스트의 스타일은 직접 지정 -->
+                </div> <!-- 수정된 부분 -->
+            </td>
+
+
+
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+                        <!-- 상품명 표시 -->
+                        <p class="text-gray-900 whitespace-no-wrap" th:text="${game.game_name}"></p>
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-base text-center">
+                        <!-- 학습내용 표시 -->
+                        <p class="text-gray-900 whitespace-no-wrap" th:text="${game.game_content}"></p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+         
+        // 클릭 이벤트를 통해 특정 칸 선택 시 이동
+        $('#gameTableBody').on('click', 'tr', function() {
+            // 선택된 행에서 게임명 가져오기
+            var gameName = $(this).find('td:eq(0) p').text();
+            // 선택된 행에서 학습내용 가져오기
+            var gameContent = $(this).find('td:eq(1) p').text();
+            // 선택된 게임의 정보를 query string으로 만들기
+            var queryString = '?gameName=' + encodeURIComponent(gameName) + '&gameContent=' + encodeURIComponent(gameContent);
+            // subscriptionApplicationListView로 이동
+            window.location.href = 'subscriptionApplicationListView' + queryString;
+        });
+         let rowNumber = 0;
+
+        // AJAX 요청을 통해 게임 목록 가져오기
+        $.ajax({
+            url: "/gameList",
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                // 서버로부터 받은 게임 목록 데이터를 테이블에 추가
+                data.forEach(function(game, index) {
+                   
+                    var row = `
+                        <tr>
+                            <td class='px-5 py-5 border-b border-gray-200 bg-white text-base text-center'>
+                                <!-- 번호 열 -->
+                                <span>${index+1}</span>
+                            </td>
+                            <td class='px-5 py-5 border-b border-gray-200 bg-white text-base text-center'>
+                                <!-- 상품 이미지 표시 -->
+                                <div class="flex justify-center items-center">
+                                   <img src='data:image/png;base64,${game.game_imgEncod}' alt='image' class="h-20 object-cover rounded">
+                                </div>
+                            </td>
+                            
+                            <td class='px-5 py-5 border-b border-gray-200 bg-white text-base text-center'>
+                                <!-- 상품명 표시 -->
+                                <p class='text-gray-900 whitespace-no-wrap'>${game.game_name}</p>
+                            </td>
+                            <td class='px-5 py-5 border-b border-gray-200 bg-white text-base text-center'>
+                                <!-- 학습내용 표시 -->
+                                <p class='text-gray-900 whitespace-no-wrap'>${game.game_content}</p>
+                            </td>
+                        </tr>`;
+                    $("#gameTableBody").append(row);
+                });
+             // totalgameCount 추가
+                var totalgameCount = data.length;
+                $("#totalgameCount").text("총 항목 수: " + totalgameCount + " 개");
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('AJAX 요청에 문제가 있습니다:', errorThrown);
+                alert('게임 목록을 가져오는 중 문제가 발생했습니다.');
+            }
+        });
+    });
+</script>
+
+    <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>
+</body>
+</html>

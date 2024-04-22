@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+<meta charset="UTF-8">
+<title>본인인증 페이지</title>
+
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+	th:src="@{js/jquery-3.7.1.min.js}"></script>
+
+<style>
+body {
+	font-family: 'Noto Sans KR', sans-serif;
+}
+
+.text-red-500 {
+	color: red;
+}
+</style>
+</head>
+<body class="bg-blue-100">
+	<div class="h-screen flex items-center justify-center">
+		<div class="max-w-sm mx-auto my-10 p-5 bg-white rounded shadow-lg">
+			<div class="mb-4">
+				<div class="flex items-center mb-2">
+					<input type="checkbox" id="auth_password"
+						class="form-checkbox h-5 w-5 text-blue-600"> <label
+						class="ml-2 text-sm font-semibold text-gray-700">인증용 암호
+						(필수)</label>
+				</div>
+				<div id="error_auth" class="text-red-500 text-sm mb-2"></div>
+				<!-- 인증용 암호 에러 메시지 -->
+
+				<div class="flex items-center mb-2">
+					<input type="checkbox" id="privacy_policy"
+						class="form-checkbox h-5 w-5 text-blue-600"> <label
+						class="ml-2 text-sm font-semibold text-gray-700">개인정보
+						수집•이용에 대한 설명 및 이용 (필수)</label>
+				</div>
+				<div id="error_privacy" class="text-red-500 text-sm mb-2"></div>
+
+				<div class="flex items-center mb-2">
+					<input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600"
+						checked> <label
+						class="ml-2 text-sm font-semibold text-gray-700">개인정보
+						수집•이용에 대한 설명 및 이용 (선택)</label>
+				</div>
+				<div class="flex items-center mb-2">
+					<input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600"
+						checked> <label
+						class="ml-2 text-sm font-semibold text-gray-700">개인정보 마케팅
+						및 광고 활용 (선택)</label>
+				</div>
+				<div class="flex items-center">
+					<input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600"
+						checked> <label
+						class="ml-2 text-sm font-semibold text-gray-700">개인정보의 위탁</label>
+				</div>
+			</div>
+
+			<!--registrationForm start  -->
+			<form id="registrationForm" action="signup2">
+				<div class="mb-4 flex">
+					<div class="flex-grow pr-2">
+						<div class="flex items-center mb-2">
+    <svg class="w-6 h-6 text-gray-800 dark:text-white mr-1 mb-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+        <path fill-rule="evenodd" d="M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4Zm10 5a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm-8-5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm1.942 4a3 3 0 0 0-2.847 2.051l-.044.133-.004.012c-.042.126-.055.167-.042.195.006.013.02.023.038.039.032.025.08.064.146.155A1 1 0 0 0 6 17h6a1 1 0 0 0 .811-.415.713.713 0 0 1 .146-.155c.019-.016.031-.026.038-.04.014-.027 0-.068-.042-.194l-.004-.012-.044-.133A3 3 0 0 0 10.059 14H7.942Z" clip-rule="evenodd"/>
+    </svg>
+    <label class="block text-sm font-semibold text-gray-700 mb-2" for="member_name">이름</label>
+</div> <input type="text"
+							name="member_name" id="member_name"
+							class="form-input w-full border-2 border-gray-300 rounded-md p-2 text-sm"
+							placeholder="이름을 입력하세요">
+						<div id="error_name" class="text-red-500 text-sm mt-1"></div>
+						<!-- 이름 에러 메시지 -->
+					</div>
+				</div>
+				<div class="mb-4 flex">
+					<div class="flex-grow pr-2">
+					<div class="flex items-center mb-2">
+					<svg class="w-6 h-6 text-gray-800 dark:text-white mr-1 mb-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <path d="M2.038 5.61A2.01 2.01 0 0 0 2 6v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6c0-.12-.01-.238-.03-.352l-.866.65-7.89 6.032a2 2 0 0 1-2.429 0L2.884 6.288l-.846-.677Z"/>
+  <path d="M20.677 4.117A1.996 1.996 0 0 0 20 4H4c-.225 0-.44.037-.642.105l.758.607L12 10.742 19.9 4.7l.777-.583Z"/>
+</svg>
+						
+						<label class="block text-sm font-semibold text-gray-700 mb-2"
+							for="member_email">이메일</label>
+				</div>
+						<div class="flex flex-between ">
+							<input type="text" id="member_email" name="member_email"
+								class="form-input w-full border-2 border-gray-300 rounded-md p-2 text-sm mr-4"
+								placeholder="이메일 주소를 입력하세요">
+							<button type="button" id="sendEmailButton"
+								class="flex-none bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+								style="height: 42px;">전송</button>
+						</div>
+						<div id="error_email" class="text-red-500 text-sm mt-1"></div>
+						<!-- 이메일 에러 메시지 -->
+					</div>
+				</div>
+
+				<div class="mb-6 flex">
+					<div class="flex-grow pr-2">
+					<div class="flex items-center mb-2">
+					<svg class="w-6 h-6 text-gray-800 dark:text-white mb-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M11.644 3.066a1 1 0 0 1 .712 0l7 2.666A1 1 0 0 1 20 6.68a17.694 17.694 0 0 1-2.023 7.98 17.406 17.406 0 0 1-5.402 6.158 1 1 0 0 1-1.15 0 17.405 17.405 0 0 1-5.403-6.157A17.695 17.695 0 0 1 4 6.68a1 1 0 0 1 .644-.949l7-2.666Zm4.014 7.187a1 1 0 0 0-1.316-1.506l-3.296 2.884-.839-.838a1 1 0 0 0-1.414 1.414l1.5 1.5a1 1 0 0 0 1.366.046l4-3.5Z" clip-rule="evenodd"/>
+</svg>
+					
+						<label class="block text-sm font-semibold text-gray-700 mb-2"
+							for="user_auth">본인 인증</label>
+					</div>
+						<div class="flex flex-between ">
+							<input type="text" id="eccode_code"
+								class="form-input w-full border-2 border-gray-300 rounded-md p-2 text-sm mr-4"
+								placeholder="이메일 인증번호를 쓰세요">
+							<button id="confirmButton"
+								class="flex-none bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+								style="height: 42px;">인증</button>
+						</div>
+					</div>
+
+
+				</div>
+
+				<button type="submit" id="goSignUp2Btn"
+					class="w-full bg-green-400 text-white font-semibold py-2 rounded-md hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">확
+					인</button>
+			</form>
+			<div id="errorMessages"></div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	var flag = false;
+	//인증용 암호 체크박스 변경 이벤트
+	$('#auth_password').change(function () {
+	    if ($(this).is(':checked')) {
+	        $('#error_auth').text('');
+	    }
+	});
+	
+	// 개인정보 수집 동의 체크박스 변경 이벤트
+	$('#privacy_policy').change(function () {
+	    if ($(this).is(':checked')) {
+	        $('#error_privacy').text('');
+	    }
+	});
+	
+    // 이메일 전송
+    $(document).ready(function () {
+        $('#sendEmailButton').click(function () {
+            var userEmail = $('#member_email').val(); // 사용자가 입력한 이메일 주소를 가져옵니다.
+
+            if (userEmail) { // 이메일 주소가 입력되었는지 확인
+                $.ajax({
+                    url: 'sendEmail', // 서버의 이메일 전송 경로
+                    type: 'POST', // HTTP 요청 방식
+                    data: {
+                        member_email: userEmail
+                        // 서버로 보낼 데이터
+                    },
+                    success: function (response) { // 요청 성공 시 처리
+                        alert('인증번호가 전송되었습니다 이메일을 확인해주세요');
+                        // 여기에 성공 로직을 구현합니다. 예: 인증번호 입력 필드 활성화
+
+                    },
+                    error: function (xhr, status, error) { // 요청 실패 시 처리
+                        alert('인증번호 전송에 실패했습니다 다시 시도해주세요');
+                        // 실패 처리 로직을 구현합니다.
+                    }
+                });
+            } else {
+                alert('이메일 주소를 입력해주세요'); // 이메일 주소가 비어있을 경우 경고
+            }
+        });
+
+        // 본인인증 인증버튼
+        $('#confirmButton').click(function () {
+            var userEmail = $('#member_email').val(); // 사용자가 입력한 이메일
+            var userAuthNumber = $('#eccode_code').val(); // 사용자가 입력한 인증번호
+
+            // 서버에 이메일과 인증번호 전송하여 확인,
+            $.ajax({
+                url: 'confirmEmail', // 서버의 인증 확인 경로
+                type: 'POST', // HTTP 요청 방식
+                contentType: 'application/json', // 전송하는, 데이터 형식 지정
+                data: JSON.stringify({ eccode_email: userEmail, eccode_code: userAuthNumber }), // JSON 형식으로 데이터 전송
+                success: function (response) { // 요청 성공 시 처리
+                    if (response === "success") {
+                        alert('본인인증에 성공했습니다 아래 확인버튼을 눌러주세요');
+                        flag = true;
+                    	
+                    } else {
+                        alert('인증에 실패했습니다 다시 시도해주세요');
+                        $('#eccode_code').focus();
+                		flag = false;
+                    }
+                },
+                error: function (xhr, status, error) { // 요청 실패 시 처리
+                    alert('인증에 실패했습니다 다시 시도해주세요');
+                }
+            });
+        });
+    });
+
+    // 양식 검증
+    document.getElementById('registrationForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // 폼의 기본 제출 동작을 막음
+
+        var email = document.getElementById('member_email').value;
+        var name = document.getElementById('member_name').value;
+
+        // 필수 체크박스 요소 가져오기
+        var authPasswordChecked = document.getElementById('auth_password').checked;
+        var privacyPolicyChecked = document.getElementById('privacy_policy').checked;
+
+        // 초기 에러 메시지 지우기
+        //document.getElementById('error_email').textContent = '';
+        //document.getElementById('error_name').textContent = '';
+        //document.getElementById('error_auth').textContent = '';
+        //document.getElementById('error_privacy').textContent = '';
+
+        var formValid = true;
+		console.log(email+' , '+ name);
+        // 이메일 검사
+        if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email)) {
+            document.getElementById('error_email').textContent = '* 유효하지 않은 이메일 주소입니다';
+           
+            formValid = false;
+        }
+
+        // 이름 검사
+        if (!/^[가-힣]{2,}$/.test(name)) {
+            document.getElementById('error_name').textContent = '* 유효하지 않은 이름입니다';
+          
+            formValid = false;
+        }
+        // 필수 체크박스 검사
+        if (!privacyPolicyChecked) {
+            document.getElementById('error_privacy').textContent = '* 개인정보 수집 및 이용 동의는 필수입니다';
+            $('#privacy_policy').focus();
+            formValid = false;
+        }
+        
+        if (!authPasswordChecked) {
+            document.getElementById('error_auth').textContent = '* 인증용 암호 동의는 필수입니다';
+            $('#auth_password').focus();
+            formValid = false;
+        }
+
+        // [박진형]
+        // 오류나는 이유 : 인증 버튼을 누르지 않으면, 확인 버튼은 disabled 처리가 되어있지 않다
+        // 해결방안 추천 : 전역변수로 인증 flag를 만들고 기본값으로 false로 초기화
+        //				아래 버튼 클릭 함수는 지우고 if문을 통해 
+        //				formValid & flag가 true일 때 submit되게 만든다.
+            // 모든 검증을 통과하고 본인인증이 완료되었을 때
+            if (formValid && flag) {
+            	$("#registrationForm").submit();
+            } else {
+            	alert('본인인증을 완료해주세요');
+            }
+        	
+
+    });
+
+ // 실시간 이메일 유효성 검사
+    $('#member_email').on('input', function () {
+        var email = $(this).val();
+
+        if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email)) {
+            $('#error_email').text('* 유효하지 않은 이메일 주소입니다');
+        } else {
+            $('#error_email').text('');
+        }
+    });
+
+    // 실시간 이름 유효성 검사
+    $('#member_name').on('input', function () {
+        var name = $(this).val();
+
+        if (!/^[가-힣]{2,}$/.test(name)) {
+            $('#error_name').text('* 유효하지 않은 이름입니다');
+        } else {
+            $('#error_name').text('');
+        }
+    });
+    
+</script>
+
+</html>

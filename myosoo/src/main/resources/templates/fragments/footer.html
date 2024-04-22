@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+
+
+
+<th:block th:fragment="footerFragment">
+<footer class="footer fixed bottom-0 left-0 w-full bg-blue-50 border-t border-gray-200 p-4" style="height: 60px;">
+    <div class="container mx-auto py-4">
+        <div class="flex justify-between px-4">
+            <div class="text-green-800">© 2023 학습 관리 시스템</div>
+            <div class="text-green-800">운영시간: 월-금 9:00 - 18:00</div>
+        </div>
+    </div>
+</footer>
+</th:block>
+
+</html>

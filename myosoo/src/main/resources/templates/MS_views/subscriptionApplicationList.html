@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>구독신청</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+	rel="stylesheet">
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+.card {
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	overflow: hidden;
+	position: relative;
+	cursor: pointer; /* 마우스 커서를 포인터로 변경하여 클릭 가능함을 표시 */
+}
+
+.card:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.card-content {
+	padding: 20px;
+}
+
+.card-image {
+	width: 100%;
+	border-radius: 8px 8px 0 0;
+}
+
+.card-description {
+	margin-top: 10px;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.card-price {
+	font-weight: bold;
+	color: #059669;
+	margin-top: 10px;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(255, 255, 255, 0.9);
+	transition: transform 0.3s ease;
+	transform: translateY(100%);
+	padding: 10px;
+	border-radius: 0 0 8px 8px;
+}
+
+.card:hover .card-price {
+	transform: translateY(-50%);
+}
+
+.card-image img {
+	width: 100%;
+	height: 270px;
+	object-fit: cover;
+}
+
+
+
+.main-container {
+	padding-bottom: 60px; /* 푸터의 높이만큼 페이지 내용의 아래쪽 여백 추가 */
+}
+</style>
+</head>
+<body>
+	<!-- header -->
+	<div th:replace="~{fragments/header :: headerFragment}"></div>
+	<div class="main-container container mx-auto p-4">
+		<h2 class="text-xl font-bold text-center mb-4 text-green-800">구독신청</h2>
+		<button id="allChk"
+			class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
+			onclick="checkAll()">모두 선택</button>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+			id="gameContainer">
+			<p id="totalPrice" class="text-center mt-4" style="display: none;">
+				총 결제 금액: <span id="totalPriceSpan">0</span> 원
+			</p>
+
+			<!-- 게임 선택을 위한 카드 -->
+			<div class="card" th:each="game : ${gameList}"
+				onclick="toggleCheckbox(this)" data-gameKey="${game.game_key}"
+				data-gameName="${game.game_name}"
+				data-gamePrice="${game.game_price}">
+				<!-- 총 결제 금액을 표시할 요소 -->
+				<!-- 게임 선택을 위한 체크박스 -->
+				<input type="checkbox" class="chk" th:value="${game.game_key}"
+					checked="checked">
+				<!-- 게임 이미지 -->
+				<div class="card-image">
+					<img th:src="'data:image/png;base64,' + ${game.game_imgEncod}"
+						alt="image" class="w-20 h-20 object-cover rounded">
+				</div>
+				<!-- 게임 정보 -->
+				<div class="card-content">
+					<h3 id="gameName" class="text-lg font-bold mb-2"
+						th:text="${game.game_name}">게임 이름</h3>
+					<p class="productContent" th:text="${game.game_content}"></p>
+					<!-- 상품명을 hidden input으로 추가 -->
+					<input type="hidden" class="productName"
+						th:value="${game.game_name}">
+						<input type="hidden" id="member_mikey" name="member_mikey" th:value="${member_mikey}">
+					<div class="card-price">
+						<!-- 게임 가격 및 기간 표시 -->
+						<span th:text="'￦' + ${game.game_price}">가격</span> <span> |
+						</span> <span th:text="${game.game_submonth + '개월'}">기간</span>
+						<p th:text="${game.game_startdate + '~' + game.game_enddate}"></p>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 결제 버튼 -->
+		<div class="mt-4 flex justify-center">
+			<button
+				class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+				onclick="goToPayment()">결제하기</button>
+		</div>
+
+	</div>
+	<script>
+		// 페이지 로드 시 각 체크박스의 가격을 총 결제 금액에 추가
+		window.onload = function() {
+			updateTotalPrice();
+		};
+
+		$(document).ready(function() {
+		    // mikey 값이 20일 때 권한 없음 알림 띄우고 인덱스 페이지로 이동
+		    var member_mikey = $("#member_mikey").val();
+		    if (member_mikey === '20') {
+		        alert('권한이 없습니다.');
+		        window.location.href = 'index';
+		    } else if (!member_mikey) { // null 체크 추가
+		        alert('로그인이 필요합니다.');
+		        window.location.href = 'loginViews';
+		    }
+		});
+
+
+		function checkAll() {
+			var checkboxes = document.querySelectorAll('.chk');
+			checkboxes.forEach(function(checkbox) {
+				checkbox.checked = this.checked;
+			}, this);
+			var allCheckbox = document.getElementById('allChk');
+			// "모두 선택" 체크박스의 상태를 확인하고 변경
+			var isChecked = allCheckbox.checked;
+			allCheckbox.checked = !isChecked;
+
+			// 각 체크박스의 상태 변경
+			checkboxes.forEach(function(checkbox) {
+				checkbox.checked = !isChecked;
+			});
+
+			// 총 결제 금액 업데이트
+			updateTotalPrice();
+		}
+
+		function updateTotalPrice() {
+			var checkboxes = document.querySelectorAll('.chk:checked');
+			var totalPrice = 0;
+			checkboxes
+					.forEach(function(checkbox) {
+						var priceText = checkbox.parentNode
+								.querySelector('.card-price span:first-child').textContent;
+						var price = parseInt(priceText.replace('￦', '').trim());
+						totalPrice += price;
+					});
+			document.getElementById('totalPriceSpan').textContent = totalPrice;
+		}
+
+		//toggleCheckbox 함수 수정
+		function toggleCheckbox(card) {
+			var checkbox = card.querySelector('.chk');
+			checkbox.checked = !checkbox.checked;
+			 var member_mikey = $("#member_mikey").val();
+			console.log("member_mikey 값:", member_mikey);
+			// 총 결제 금액 업데이트
+			updateTotalPrice();
+		}
+
+	    function goToPayment() {
+	        var checkboxes = document.querySelectorAll('.chk:checked');
+	        var gameKeys = [];
+
+	        checkboxes.forEach(function(checkbox) {
+	            var gameKey = checkbox.value;
+	            gameKeys.push(gameKey);
+	        });
+
+	        var totalPrice = 0;
+	        var productNames = [];
+	        var gamePrices = [];
+
+	        checkboxes.forEach(function(checkbox) {
+	            var priceText = checkbox.parentNode.querySelector('.card-price span:first-child').textContent;
+	            var productName = checkbox.parentNode.querySelector('.productName').value;
+	            var price = parseInt(priceText.replace('￦', '').trim());
+
+	            // Check if the user is a normal user (mikey = 30)
+	            var member_mikey = $("#member_mikey").val(); 
+	            if (member_mikey === "30") {
+	                // If the user is a normal user, apply 10% discount
+	                price *= 0.9; // Apply 10% discount
+	            }
+
+	            totalPrice += price;
+	            productNames.push(productName);
+	            gamePrices.push(price);
+	        });
+
+	        // Update total price
+	        document.getElementById('totalPriceSpan').textContent = totalPrice;
+
+	        // Redirect to payment page
+	        var url = "paymentView?totalPrice=" + totalPrice + "&productNames=" + encodeURIComponent(JSON.stringify(productNames)) + "&gameKey=" + gameKeys.join(",") + "&gamePrices=" + encodeURIComponent(JSON.stringify(gamePrices));
+	        window.location.href = url;
+	    }
+	</script>
+	<!-- footer -->
+	<div class="footer-container">
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+	</div>
+</body>
+</html>

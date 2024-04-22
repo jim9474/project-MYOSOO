@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+<meta charset="UTF-8">
+<title>회원정보 페이지</title>
+
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<script type="text/javascript" src="../../static/js/jquery-3.7.1.min.js"
+	th:src="@{js/jquery-3.7.1.min.js}"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+    </style>
+</head>
+<body class="bg-blue-100">
+   <!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+   
+    <div class="max-w-md mx-auto bg-white p-6 mt-10 rounded shadow-lg">
+    	
+        <div class="flex items-center mb-5">
+        <svg class="w-6 h-6 text-gray-800 dark:text-white ml-1 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+        <path fill-rule="evenodd" d="M12 20a7.966 7.966 0 0 1-5.002-1.756l.002.001v-.683c0-1.794 1.492-3.25 3.333-3.25h3.334c1.84 0 3.333 1.456 3.333 3.25v.683A7.966 7.966 0 0 1 12 20ZM2 12C2 6.477 6.477 2 12 2s10 4.477 10 10c0 5.5-4.44 9.963-9.932 10h-.138C6.438 21.962 2 17.5 2 12Zm10-5c-1.84 0-3.333 1.455-3.333 3.25S10.159 13.5 12 13.5c1.84 0 3.333-1.455 3.333-3.25S13.841 7 12 7Z" clip-rule="evenodd"/>
+    </svg>
+    <h2 class="text-lg font-semibold"> 회원 정보</h2>
+    
+</div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_name">이름</label>
+
+            </div>
+            <input type="text" id="member_name" name="member_name"
+                class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                th:value="${member.member_name}" readonly>
+        </div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_email">이메일</label>
+
+            </div>
+            <input type="email" id="member_email" name="member_email"
+                class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                th:value="${member.member_email}" readonly>
+        </div>
+
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_id">아이디</label>
+
+            </div>
+            
+                <input type="text" id="member_id" name="member_id" 
+                    class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                     th:value="${member.member_id}" readonly>
+            
+            
+        </div>
+        
+        <div class="mb-4">
+            <div class="mb-2 flex">
+                <label class="text-sm font-medium">핸드폰 번호</label>
+                
+            </div>
+            <div class="flex mt-2">
+                <input type="text" id="member_tel" name="member_tel"
+                    class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                    th:value="${member.member_tel}" readonly>
+                    
+
+            </div>
+           
+        </div>
+        <div class="mb-4">
+            <div class="flex">
+                <label class="block text-sm font-medium mb-1" for="member_birth">생년월일</label>
+                
+            </div>
+
+            <input type="text" id="member_birth" name="member_birth"
+                class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                th:value="${member.member_birth}" readonly>
+
+            <div class="mb-4">
+                <div class="flex mt-2">
+                    <label class="block text-sm font-medium mt-1" for="member_mikey">회원 구분</label>
+                    
+                </div>
+                 <input type="text" id="member_mikey" name="member_mikey"
+                class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                th:value="(${member.member_mikey} == 10 ? '교육자' : (${member.member_mikey} == 20 ? '학습자' : (${member.member_mikey} == 30 ? '일반인' : '운영자')))" readonly>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex">
+                    <label class="block text-sm font-medium mb-1" for="member_gender">성별</label>
+         
+                </div>
+               <input type="text" id="member_gender" name="member_gender"
+                class="w-full border-2 border-blue-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500"
+                th:value="${member.member_gender == 'm' ? '남자' : '여자'}" readonly>
+            
+                   
+                </div>
+            </div>
+			<div class="flex items-center justify-center">
+            <button onclick="location.href='updateMemberForm'"
+								class="flex-none bg-blue-500 text-white font-semibold py-2 mr-10 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+								style="height: 42px;">수정</button>
+			<button id="memberDeleteBtn"
+								class="flex-none bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+								style="height: 42px;">탈퇴</button>
+            </div>	
+        </div>
+        
+   <!-- footer -->
+   <div class="footer mt-auto"><th:block th:replace="~{fragments/footer::footerFragment}"></th:block></div>        
+</body>
+
+<script type="text/javascript">
+	//탈퇴 버튼 클릭 시 이벤트 핸들러
+	document.getElementById("memberDeleteBtn").addEventListener("click", function() {
+	    // 확인창 표시
+	    var result = confirm("회원님의 정보가 모두 사라집니다 정말로 탈퇴하시겠습니까?");
+	    
+	    // 확인을 눌렀을 경우
+	    if (result) {
+	        // AJAX 요청을 통해 회원 탈퇴 요청
+	        $.ajax({
+	            type: "POST", // 요청 메서드
+	            url: "deleteMemberInfo", // 탈퇴 요청을 처리하는 URL
+	            success: function(response) { // 성공적으로 응답을 받았을 때 실행될 콜백 함수
+	                // 회원 탈퇴가 성공적으로 이루어졌음을 알리는 메시지 표시
+	                alert("회원 탈퇴가 성공적으로 진행되었습니다");
+	                // 페이지 새로고침
+	                location.href = "/index";
+	            },
+	            error: function(xhr, status, error) { // 요청 실패 시 실행될 콜백 함수
+	                // 오류 메시지 표시
+	                alert("회원 탈퇴 중 오류가 발생하였습니다 다시 시도해주세요");
+	            }
+	        });
+	    }
+	});
+</script>
+
+</html>

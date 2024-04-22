@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>바둑 사이트 이용 안내</title>
+<th:block th:replace="~{fragments/configure::configure}"></th:block>
+<link
+   href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+   rel="stylesheet">
+<script
+   src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+body {
+   font-family: Arial, sans-serif;
+   margin: 0;
+   padding: 0;
+   background-color: #f7f7f7;
+   color: #333;
+   min-height: 100vh;
+   display: flex; /* Flexbox를 사용하여 수직 가운데 정렬 */
+   flex-direction: column;
+}
+
+.main-container {
+   flex-grow: 1;
+   max-width: 800px;
+   margin: 20px auto;
+   padding: 20px;
+   background-color: #fff;
+   border-radius: 8px;
+   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+   color: #4CAF50;
+}
+
+h2 {
+   margin-top: 20px;
+}
+
+p {
+   line-height: 1.6;
+}
+
+
+
+.section {
+   margin-top: 40px;
+}
+.section h2,
+.section p {
+    font-size: 0.9em; /* 폰트 사이즈를 작게 조정 */
+    opacity: 0.8; /* 투명도를 줘서 덜 눈에 띄도록 함 */
+}
+
+</style>
+</head>
+<body>
+   <!-- header -->
+   <th:block th:replace="~{fragments/header::headerFragment}"></th:block>
+   <div class="main-container">
+      <h1>바둑 사이트 이용 안내</h1>
+
+      <div class="section">
+         <h2>교육자</h2>
+         <p>바둑 사이트에서는 교육자로 등록하여 학생들에게 바둑을 가르칠 수 있습니다. 교육자로 등록하려면 아래 링크를
+            클릭하세요.</p>
+         <div class="border-t border-gray-200">
+            <dl>
+               <!-- 구독상품 검색 -->
+               <div
+                  class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">1. 구독상품 검색</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학생들이 구독할
+                     수 있는 바둑 학습 상품을 검색합니다.</dd>
+               </div>
+               <!-- 구독 결제/취소 -->
+               <div
+                  class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">2. 구독 결제/취소</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학생들의 구독을
+                     관리하고 결제 또는 취소를 처리합니다.</dd>
+               </div>
+               <!-- 학습그룹 등록 -->
+               <div
+                  class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">3. 학습그룹 등록</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학생들을
+                     그룹으로 묶어 학습을 관리하기 위해 그룹을 등록합니다.</dd>
+               </div>
+               <!-- 그룹 신청 조회 및 승인 -->
+               <div
+                  class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">4. 그룹 신청 조회 및
+                     승인</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학생들이 그룹에
+                     가입하기 위해 신청한 내역을 조회하고 승인합니다.</dd>
+               </div>
+               <!-- 학습진도 전송 -->
+               <div
+                  class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">5. 학습진도 전송</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학생들의 학습
+                     진도를 전송하고 관리합니다.</dd>
+               </div>
+               <!-- 학습/학습진도 현황 조회 -->
+               <div
+                  class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">6. 학습/학습진도 현황
+                     조회</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학생들의 학습
+                     현황과 진도를 조회하고 분석합니다.</dd>
+               </div>
+            </dl>
+            <a th:href="@{dyCreateUserView}" class="text-blue-500">회원가입하기</a>
+         </div>
+      </div>
+
+      <div class="section">
+         <h2>학생(학습자)</h2>
+         <p>바둑을 배우고 싶은 학생들은 여기에서 강의를 수강하고 게임을 플레이할 수 있습니다. 학생으로 등록하려면 아래
+            링크를 클릭하세요.</p>
+         <div class="border-t border-gray-200">
+            <dl>
+               <!-- 학습그룹 가입신청 -->
+               <div
+                  class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">1. 학습그룹 가입신청</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학습 그룹에
+                     가입하기 위해 신청합니다.</dd>
+               </div>
+               <!-- 학습진도 수신확인 -->
+               <div
+                  class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">2. 학습진도 수신확인</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학습자가 학습
+                     그룹에 가입하면 교육자가 학습 진도를 전송하고, 학습자는 진도를 확인합니다.</dd>
+               </div>
+               <!-- 학습진도 수행(등록) -->
+               <div
+                  class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">3. 학습진도 수행(등록)</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">학습자는 학습
+                     진도를 수행하고, 진도를 시스템에 등록합니다.</dd>
+               </div>
+            </dl>
+            <a th:href="@{dyCreateUserView}" class="text-blue-500">회원가입하기</a>
+         </div>
+      </div>
+
+      <div class="section">
+         <h2>일반인</h2>
+         <p>바둑을 즐기고 싶은 일반인들은 여기에서 게임을 즐기고 바둑에 대해 쉽게 배울 수 있습니다.</p>
+         <div class="border-t border-gray-200">
+            <dl>
+               <!-- 구독상품 검색 -->
+               <div
+                  class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">1. 구독상품 검색</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">가입할 유료
+                     바둑 콘텐츠 또는 튜토리얼을 검색합니다.</dd>
+               </div>
+               <!-- 구독결제/취소 -->
+               <div
+                  class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">2. 구독결제/취소</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">선택한 콘텐츠를
+                     구독하거나 구독을 취소합니다.</dd>
+               </div>
+               <!-- 유료바둑콘텐츠/튜토리얼 시청 -->
+               <div
+                  class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">3. 유료바둑콘텐츠/튜토리얼
+                     시청</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">구독한 콘텐츠를
+                     시청하거나 튜토리얼을 수강합니다.</dd>
+               </div>
+            </dl>
+            <a th:href="@{dyCreateUserView}" class="text-blue-500">회원가입하기</a>
+         </div>
+      </div>
+<div class="section">
+    <h2>결제 / 결제 취소 주의사항</h2>
+    <p>유료 서비스를 구독하고자 할 때, 결제 전 반드시 이용 약관을 확인하시고, 정확한 결제 정보를 입력해주세요. 잘못된 정보 입력으로 인한 문제는 책임지지 않습니다.</p>
+</div>
+
+<!-- 안내문구 -->
+<div class="section">
+    <h2>유료바둑콘텐츠/튜토리얼 사용 안내</h2>
+    <p>유료 콘텐츠 및 튜토리얼을 이용하실 때, 해당 콘텐츠를 구독한 후 마이페이지에서 확인하실 수 있습니다. 각 콘텐츠의 이용 방법은 해당 콘텐츠 페이지에서 확인하실 수 있습니다.</p>
+</div>
+   </div>
+   <!-- 주의문구 -->
+   
+   <!-- footer -->
+   <div class="footer-container">
+      <div class="footer mt-auto">
+         <th:block th:replace="~{fragments/footer::footerFragment}"></th:block>
+      </div>
+   </div>
+</body>
+</html>
+
